@@ -1,0 +1,13 @@
+{
+  "name": "front",
+  "version": "1.0.0",
+  "dependencies": {
+    "konva": "^7.2.4"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.2"
+  },
+  "scripts": {
+    "build": "npx"
+  }
+}
