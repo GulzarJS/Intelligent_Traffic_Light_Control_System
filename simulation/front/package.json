@@ -8,6 +8,6 @@
     "typescript": "^4.2.2"
   },
   "scripts": {
-    "build": "npx"
+    "build": "npx tsc"
   }
 }

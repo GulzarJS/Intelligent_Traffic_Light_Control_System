@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  front_builder:
+    build: ./front/
+    restart: no
+  back:
+    build: ./back/
