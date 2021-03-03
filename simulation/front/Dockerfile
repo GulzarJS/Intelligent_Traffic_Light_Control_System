@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY package.json /app/package.json
 COPY package-lock.json /app/package-lock.json
+COPY tsconfig.json /app/tsconfig.json
 
 RUN npm install
 
-COPY ./front .
+COPY ./src/ ./src/
 
-RUN npm build
+RUN npm run build

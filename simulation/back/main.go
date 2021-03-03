@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
+	"github.com/paulmach/osm/osmxml"
 	"net/http"
 	"os"
 	"sync"
@@ -18,22 +21,51 @@ type clients struct {
 }
 
 func main() {
-	objs := loadOSM("./map.osm")
+	objs, err := loadOSM("./map.osm")
+	misc.LogError(err, true, "Error loading osm objects")
 
 	app := NewApp(objs)
 
 	_ = app
 
-	http.HandleFunc("/ws", app.serveWs)
-	err := http.ListenAndServe(":8080", nil)
+	http.HandleFunc("/back/ws", app.serveWs)
+	http.HandleFunc("/back", func(w http.ResponseWriter, r *http.Request) {
+		enc := json.NewEncoder(w)
+		enc.SetIndent("", "	")
+		if err := enc.Encode(objs); err != nil {
+			misc.LogError(err, false, "cannot encode objs")
+			w.WriteHeader(502)
+		}
+	})
+	err = http.ListenAndServe(":8080", nil)
 	misc.LogError(err, true, "Cannot listen on :8080")
 }
 
-func loadOSM(filePath string) osm.Objects {
+func loadOSM(filePath string) (osm.Objects, error) {
 	defer misc.TimeTaken(time.Now(), "loadOSM")
-	b, err := os.ReadFile(filePath)
-	misc.LogError(err, true, fmt.Sprintf("Cannot read %s", filePath))
-	osm, err := osm.UnmarshalOSM(b)
-	misc.LogError(err, true, "Cannot unmarshal osm file")
-	return osm.Objects()
+
+	var objs osm.Objects
+
+	f, err := os.Open("./map.osm")
+
+	if err != nil {
+		return nil, fmt.Errorf("main.go:45 cannot open file: %v", err)
+	}
+
+	defer f.Close()
+
+	scannerVar := osmxml.New(context.Background(), f)
+
+	i := 0
+	for scannerVar.Scan() {
+		obj := scannerVar.Object()
+		objs = append(objs, obj)
+		//misc.LogInfo("OSM object %d: %v", obj.(*osm.Changeset))
+		i++
+	}
+
+	if err := scannerVar.Err(); err != nil {
+		return nil, fmt.Errorf("main.go:63 scanner returned error: %v", err)
+	}
+	return objs, nil
 }
