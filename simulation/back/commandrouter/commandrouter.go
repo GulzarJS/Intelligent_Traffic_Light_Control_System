@@ -2,6 +2,7 @@ package commandrouter
 
 import (
 	"errors"
+	"fmt"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
 	"regexp"
 	"sync"
@@ -13,7 +14,7 @@ import (
 type CommandRouter struct {
 	routes        map[*regexp.Regexp]Route
 	routesOrdered []*regexp.Regexp
-	rotesMux      sync.Mutex
+	routesMux     sync.Mutex
 }
 
 func NewCommandRouter() *CommandRouter {
@@ -32,14 +33,15 @@ type RouteArgs struct {
 func (r *CommandRouter) Add(regex string, f Route) {
 	compRegEx := regexp.MustCompile(regex)
 
-	r.rotesMux.Lock()
-	defer r.rotesMux.Unlock()
+	r.routesMux.Lock()
+	defer r.routesMux.Unlock()
 	r.routes[compRegEx] = f
 	r.routesOrdered = append(r.routesOrdered, compRegEx)
 }
 
 func (r *CommandRouter) Match(command string, ws *websocket.Conn) error {
-	r.rotesMux.Lock()
+	r.routesMux.Lock()
+	defer r.routesMux.Unlock()
 	var match *regexp.Regexp
 	for _, v := range r.routesOrdered {
 		if v.MatchString(command) {
@@ -62,13 +64,12 @@ func (r *CommandRouter) Match(command string, ws *websocket.Conn) error {
 		Params: getParams(match, command),
 		Ws:     ws,
 	}
-	go f(args)
-
+	go r.MonitorRouteMiddleware(match.String(), f, args)
 	return nil
 }
 
-func (r *CommandRouter) MonitorRouteMiddleware(route Route, args RouteArgs) {
-	defer misc.TimeTaken(time.Now(), "route func")
+func (r *CommandRouter) MonitorRouteMiddleware(regex string, route Route, args RouteArgs) {
+	defer misc.TimeTaken(time.Now(), fmt.Sprintf("route func %s", regex))
 	route(args)
 }
 

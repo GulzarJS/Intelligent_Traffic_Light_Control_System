@@ -13,6 +13,8 @@ export class CommandRouter {
 
     public match(message: string) {
         let obj: WsMessage<any> = JSON.parse(message)
+
+        console.log("parsed obj", obj)
         obj.ws = this.ws
 
         for (let route of this.routes) {

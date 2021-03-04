@@ -3,30 +3,30 @@ package main
 import (
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/commandrouter"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
+	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/osmhelper"
 	"github.com/gorilla/websocket"
-	"github.com/paulmach/osm"
 	"net/http"
 	"time"
 )
 
 type App struct {
-	objs    osm.Objects
-	cRouter *commandrouter.CommandRouter
-	clnts   clients
+	cRouter   *commandrouter.CommandRouter
+	clnts     clients
+	osmHelper *osmhelper.OsmHelper
 }
 
 var (
 	upgrader = websocket.Upgrader{}
 )
 
-func NewApp(objs osm.Objects) *App {
+func NewApp(osmHelper *osmhelper.OsmHelper) *App {
 	upgrader.CheckOrigin = func(r *http.Request) bool {
 		return true
 	}
 
 	app := App{
-		objs:    objs,
-		cRouter: commandrouter.NewCommandRouter(),
+		osmHelper: osmHelper,
+		cRouter:   commandrouter.NewCommandRouter(),
 		clnts: clients{
 			clients: make(map[*websocket.Conn]bool),
 		},

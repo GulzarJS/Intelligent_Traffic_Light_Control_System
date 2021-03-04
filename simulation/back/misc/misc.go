@@ -37,5 +37,9 @@ func LogError(err error, fatal bool, extraMessage string) bool {
 }
 
 func LogInfo(format string, args ...interface{}) {
-	log.Printf("[INFO] "+format, args)
+	if len(args) > 0 {
+		log.Printf("[INFO] "+format, args...)
+	} else {
+		log.Println("[INFO] " + format)
+	}
 }
