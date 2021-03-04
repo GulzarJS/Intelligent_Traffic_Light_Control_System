@@ -19,7 +19,7 @@ var (
 	upgrader = websocket.Upgrader{}
 )
 
-func NewApp(objs osm.Objects) App {
+func NewApp(objs osm.Objects) *App {
 	upgrader.CheckOrigin = func(r *http.Request) bool {
 		return true
 	}
@@ -34,7 +34,7 @@ func NewApp(objs osm.Objects) App {
 
 	app.initializeRoutes()
 
-	return app
+	return &app
 }
 
 func (a *App) serveWs(w http.ResponseWriter, r *http.Request) {
@@ -59,6 +59,7 @@ func (a *App) readMessages(ws *websocket.Conn) {
 			a.clnts.mux.Lock()
 			delete(a.clnts.clients, ws)
 			a.clnts.mux.Unlock()
+			misc.LogError(err, false, "app.go:62 ws.ReadMessage returned error")
 			return
 		}
 
@@ -68,13 +69,16 @@ func (a *App) readMessages(ws *websocket.Conn) {
 			delete(a.clnts.clients, ws)
 			a.clnts.mux.Unlock()
 			err := ws.Close()
-			misc.LogError(err, false, "Cannot gracefully close ws connection")
+			if !misc.LogError(err, false, "Cannot gracefully close ws connection") {
+				misc.LogInfo("closed connection")
+			}
 			return
 		case websocket.PingMessage:
 			err := ws.WriteMessage(websocket.PongMessage, []byte{})
 			misc.LogError(err, false, "Cannot write ws pong message")
 			break
 		case websocket.TextMessage:
+			misc.LogInfo("Text Message received: %s", string(msg))
 			err = a.cRouter.Match(string(msg), ws)
 			misc.LogError(err, false, "Cannot route commands")
 		}
