@@ -9,7 +9,7 @@ import (
 // Use as defer TimeTaken(time.Now(), "function_name")
 func TimeTaken(t time.Time, name string) {
 	elapsed := time.Since(t)
-	log.Printf("TIME: %s took %s\n", name, elapsed)
+	log.Printf("[TIME] %s took %s\n", name, elapsed)
 }
 
 // LogError logs error and return true if err is not nil

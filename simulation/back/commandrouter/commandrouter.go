@@ -17,7 +17,10 @@ type CommandRouter struct {
 }
 
 func NewCommandRouter() *CommandRouter {
-	return &CommandRouter{}
+	return &CommandRouter{
+		routes:        make(map[*regexp.Regexp]Route, 0),
+		routesOrdered: make([]*regexp.Regexp, 0),
+	}
 }
 
 type Route func(RouteArgs)

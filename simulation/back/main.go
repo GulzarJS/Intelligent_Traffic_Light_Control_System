@@ -28,8 +28,8 @@ func main() {
 
 	_ = app
 
-	http.HandleFunc("/back/ws", app.serveWs)
-	http.HandleFunc("/back", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/", app.serveWs)
+	http.HandleFunc("/objs", func(w http.ResponseWriter, r *http.Request) {
 		enc := json.NewEncoder(w)
 		enc.SetIndent("", "	")
 		if err := enc.Encode(objs); err != nil {
@@ -60,7 +60,6 @@ func loadOSM(filePath string) (osm.Objects, error) {
 	for scannerVar.Scan() {
 		obj := scannerVar.Object()
 		objs = append(objs, obj)
-		//misc.LogInfo("OSM object %d: %v", obj.(*osm.Changeset))
 		i++
 	}
 

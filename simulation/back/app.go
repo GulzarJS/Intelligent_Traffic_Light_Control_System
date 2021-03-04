@@ -20,17 +20,26 @@ var (
 )
 
 func NewApp(objs osm.Objects) App {
-	return App{
+	upgrader.CheckOrigin = func(r *http.Request) bool {
+		return true
+	}
+
+	app := App{
 		objs:    objs,
 		cRouter: commandrouter.NewCommandRouter(),
 		clnts: clients{
 			clients: make(map[*websocket.Conn]bool),
 		},
 	}
+
+	app.initializeRoutes()
+
+	return app
 }
 
 func (a *App) serveWs(w http.ResponseWriter, r *http.Request) {
 	defer misc.TimeTaken(time.Now(), "serveWs")
+	misc.LogInfo("serveWs called by %s", r.Host)
 	ws, err := upgrader.Upgrade(w, r, nil)
 
 	if misc.LogError(err, false, "Error while upgrading request to ws") {

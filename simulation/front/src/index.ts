@@ -1,17 +1,5 @@
-function bodyOnLoad() {
-    const socket = new WebSocket('ws://back:8080/back/ws')
+import App from "./app";
 
-    socket.addEventListener('open', (event => {
-        socket.send("/init")
-    }))
+const socket = new WebSocket('ws://localhost:9090/')
 
-    socket.addEventListener('message', (event) => {
-        console.log("Message from server", event.data)
-    })
-
-
-
-    socket.addEventListener('close', (event) => {
-        console.log("Server closed. Reason: ", event.reason)
-    })
-}
+const app = new App(socket)
