@@ -10,6 +10,6 @@
     "typescript": "^4.2.2"
   },
   "scripts": {
-    "build": "npx tsc && npx browserify src/index.js -o src/index.js"
+    "build": "npx tsc --lib es2015,dom && npx browserify src/index.js -o src/index.js"
   }
 }

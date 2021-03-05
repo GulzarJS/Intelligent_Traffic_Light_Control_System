@@ -6,7 +6,7 @@ export default class App {
     public cRouter: CommandRouter
     readonly ws: WebSocket
     readonly wsCommander: WsCommander
-    public boundRatioListener: AsyncEvent<WsBoundRatio>
+    public boundsListener: AsyncEvent<WsBounds>
     public waysListener: AsyncEvent<WsMessageWay[]>
 
     constructor(ws: WebSocket, wsCommander: WsCommander) {
@@ -21,7 +21,7 @@ export default class App {
     private initializeRoutes(){
         this.cRouter.add("init", this.init)
         this.cRouter.add("nodes", this.gotWays)
-        this.cRouter.add("boundratio", this.gotBoundRatio)
+        this.cRouter.add("bounds", this.gotBounds)
     }
 
     private initializeWs(){
@@ -41,7 +41,7 @@ export default class App {
 
     private initializeListeners() {
         this.waysListener = new AsyncEvent<WsMessageWay[]>()
-        this.boundRatioListener = new AsyncEvent<WsBoundRatio>()
+        this.boundsListener = new AsyncEvent<WsBounds>()
     }
 
     private init(message: WsMessage<string>){
@@ -52,8 +52,8 @@ export default class App {
         this.waysListener.post(message.Body)
     }
 
-    private gotBoundRatio(message: WsMessage<WsBoundRatio>) {
-        this.boundRatioListener.post(message.Body)
+    private gotBounds(message: WsMessage<WsBounds>) {
+        this.boundsListener.post(message.Body)
     }
 }
 
@@ -70,7 +70,9 @@ export interface WsMessageWay {
     Tags: any
 }
 
-export interface WsBoundRatio {
-    X: number
-    Y: number
+export interface WsBounds {
+    MaxLat: number
+    MaxLon: number
+    MinLat: number
+    MinLon: number
 }

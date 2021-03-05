@@ -9,6 +9,7 @@ func (a *App) initializeRoutes() {
 	a.cRouter.Add("/init", a.init)
 	a.cRouter.Add("/getWays", a.getWays)
 	a.cRouter.Add("/getBoundRatio", a.getBoundRatio)
+	a.cRouter.Add("/getBounds", a.getBounds)
 }
 
 type WsMessage struct {
@@ -53,6 +54,15 @@ func (a *App) getBoundRatio(args commandrouter.RouteArgs) {
 	err := args.Ws.WriteJSON(WsMessage{
 		Type: "boundratio",
 		Body: a.osmHelper.GetBoundRatio(),
+	})
+
+	misc.LogError(err, false, "Write error occurred")
+}
+
+func (a *App) getBounds(args commandrouter.RouteArgs) {
+	err := args.Ws.WriteJSON(WsMessage{
+		Type: "bounds",
+		Body: a.osmHelper.GetBounds(),
 	})
 
 	misc.LogError(err, false, "Write error occurred")

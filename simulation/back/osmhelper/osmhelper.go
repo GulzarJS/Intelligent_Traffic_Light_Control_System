@@ -137,7 +137,7 @@ func (o OsmHelper) GetWsWays() []WsWay {
 	return wsWay
 }
 
-func (o OsmHelper) getBounds() *osm.Bounds {
+func (o OsmHelper) GetBounds() *osm.Bounds {
 	return o.Bounds
 }
 

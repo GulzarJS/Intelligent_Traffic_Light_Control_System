@@ -1,6 +1,7 @@
 import App from "./app";
 import {AppUI} from "./ui";
 import WsCommander from "./wscommander";
+import Konva from "konva";
 
 const socket = new WebSocket('ws://localhost:9090/')
 
