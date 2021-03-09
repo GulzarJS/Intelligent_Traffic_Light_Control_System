@@ -14,4 +14,8 @@ export default class WsCommander {
     public getBounds() {
         this.ws.send("/getBounds")
     }
+
+    public getTrafficLights() {
+        this.ws.send("/getTrafficLights")
+    }
 }

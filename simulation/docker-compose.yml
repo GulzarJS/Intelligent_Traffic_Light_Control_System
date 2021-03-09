@@ -9,7 +9,7 @@ services:
     command: npm run build
   back:
     build: ./back/
-    command: go run .
+    command: go run -race .
     volumes:
       - ./back:/go/src/app
   nginx:

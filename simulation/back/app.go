@@ -4,14 +4,16 @@ import (
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/commandrouter"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/osmhelper"
+	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/wshelper"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"sync"
 	"time"
 )
 
 type App struct {
 	cRouter   *commandrouter.CommandRouter
-	clnts     clients
+	clnts     wshelper.Clients
 	osmHelper *osmhelper.OsmHelper
 }
 
@@ -27,8 +29,10 @@ func NewApp(osmHelper *osmhelper.OsmHelper) *App {
 	app := App{
 		osmHelper: osmHelper,
 		cRouter:   commandrouter.NewCommandRouter(),
-		clnts: clients{
-			clients: make(map[*websocket.Conn]bool),
+		clnts: wshelper.Clients{
+			Clients:   make(map[int]*wshelper.WsConn),
+			ClientIds: make(map[*websocket.Conn]int),
+			NextId:    0,
 		},
 	}
 
@@ -46,35 +50,46 @@ func (a *App) serveWs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	a.clnts.mux.Lock()
-	defer a.clnts.mux.Unlock()
-	a.clnts.clients[ws] = true
-	go a.readMessages(ws)
+	a.clnts.Mux.Lock()
+	defer a.clnts.Mux.Unlock()
+	wsConn := &wshelper.WsConn{
+		Id:  a.clnts.NextId,
+		Ws:  ws,
+		Mux: sync.Mutex{},
+	}
+	a.clnts.Clients[a.clnts.NextId] = wsConn
+	a.clnts.ClientIds[ws] = a.clnts.NextId
+	a.clnts.NextId = a.clnts.NextId + 1
+	go a.readMessages(wsConn)
 }
 
-func (a *App) readMessages(ws *websocket.Conn) {
+func (a *App) readMessages(ws *wshelper.WsConn) {
 	for {
-		msgType, msg, err := ws.ReadMessage()
+		msgType, msg, err := ws.Ws.ReadMessage()
 		if err != nil {
-			a.clnts.mux.Lock()
-			delete(a.clnts.clients, ws)
-			a.clnts.mux.Unlock()
+			a.clnts.Mux.Lock()
+			delete(a.clnts.ClientIds, ws.Ws)
+			delete(a.clnts.Clients, ws.Id)
+			a.clnts.Mux.Unlock()
 			misc.LogError(err, false, "app.go:62 ws.ReadMessage returned error")
 			return
 		}
 
 		switch msgType {
 		case websocket.CloseMessage:
-			a.clnts.mux.Lock()
-			delete(a.clnts.clients, ws)
-			a.clnts.mux.Unlock()
-			err := ws.Close()
+			a.clnts.Mux.Lock()
+			delete(a.clnts.ClientIds, ws.Ws)
+			delete(a.clnts.Clients, ws.Id)
+			a.clnts.Mux.Unlock()
+			err := ws.Ws.Close()
 			if !misc.LogError(err, false, "Cannot gracefully close ws connection") {
 				misc.LogInfo("closed connection")
 			}
 			return
 		case websocket.PingMessage:
-			err := ws.WriteMessage(websocket.PongMessage, []byte{})
+			ws.Mux.Lock()
+			err := ws.Ws.WriteMessage(websocket.PongMessage, []byte{})
+			ws.Mux.Unlock()
 			misc.LogError(err, false, "Cannot write ws pong message")
 			break
 		case websocket.TextMessage:

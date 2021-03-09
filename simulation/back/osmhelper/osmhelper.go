@@ -119,6 +119,9 @@ func NewOsmHelper(file string) (*OsmHelper, error) {
 func (o OsmHelper) GetWsWays() []WsWay {
 	wsWay := make([]WsWay, 0)
 	for _, way := range o.Ways {
+		if !isCarWay(way) {
+			continue
+		}
 		wsWay = append(wsWay, WsWay{
 			Distance: way.Distance,
 			Node1: WsNode{
@@ -146,6 +149,19 @@ func (o OsmHelper) GetBoundRatio() WsBoundRatio {
 		X: distance(o.Bounds.MinLat, o.Bounds.MinLon, o.Bounds.MinLat, o.Bounds.MaxLon),
 		Y: distance(o.Bounds.MinLat, o.Bounds.MinLon, o.Bounds.MaxLat, o.Bounds.MinLon),
 	}
+}
+
+func (o OsmHelper) GetTrafficLights() []WsNode {
+	wsNodes := make([]WsNode, 0)
+	for _, trafficLight := range o.TrafficLights {
+		wsNodes = append(wsNodes, WsNode{
+			ID:  int64(trafficLight.ID),
+			Lat: trafficLight.Lat,
+			Lon: trafficLight.Lon,
+		})
+	}
+
+	return wsNodes
 }
 
 func loadOSM(filePath string) (osm.Objects, error) {
@@ -209,4 +225,14 @@ func distance(lat1, lon1, lat2, lon2 float64) float64 {
 // haversin(θ) function
 func hsin(theta float64) float64 {
 	return math.Pow(math.Sin(theta/2), 2)
+}
+
+func isCarWay(way Way) bool {
+	highway := way.Tags.Find("highway")
+
+	return highway == "motorway" || highway == "trunk" ||
+		highway == "primary" || highway == "secondary" ||
+		highway == "tertiary" || highway == "motorway_link" ||
+		highway == "trunk_link" || highway == "primary_link" ||
+		highway == "residential"
 }

@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
+	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/wshelper"
 	"regexp"
 	"sync"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 type CommandRouter struct {
@@ -27,7 +26,7 @@ func NewCommandRouter() *CommandRouter {
 type Route func(RouteArgs)
 type RouteArgs struct {
 	Params map[string]string
-	Ws     *websocket.Conn
+	Ws     *wshelper.WsConn
 }
 
 func (r *CommandRouter) Add(regex string, f Route) {
@@ -39,7 +38,7 @@ func (r *CommandRouter) Add(regex string, f Route) {
 	r.routesOrdered = append(r.routesOrdered, compRegEx)
 }
 
-func (r *CommandRouter) Match(command string, ws *websocket.Conn) error {
+func (r *CommandRouter) Match(command string, ws *wshelper.WsConn) error {
 	r.routesMux.Lock()
 	defer r.routesMux.Unlock()
 	var match *regexp.Regexp

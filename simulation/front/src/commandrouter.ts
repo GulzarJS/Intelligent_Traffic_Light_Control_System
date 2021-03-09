@@ -1,3 +1,5 @@
+import App from "./app"
+
 export class CommandRouter {
     private routes: Array<Route>
     private readonly ws: WebSocket

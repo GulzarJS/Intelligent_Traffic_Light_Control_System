@@ -1,15 +1,23 @@
 {
   "name": "front",
   "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "konva": "^7.2.4",
-    "ts-events": "^3.4.0"
+    "konva": "^7.2.5",
+    "ts-events": "^3.4.0",
+    "ts-loader": "^8.0.17",
+    "typescript": "^4.2.3",
+    "webpack": "^5.24.3",
+    "webpack-dev-server": "^3.11.2"
   },
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "typescript": "^4.2.2"
-  },
-  "scripts": {
-    "build": "npx tsc --lib es2015,dom && npx browserify src/index.js -o src/index.js"
+    "webpack-cli": "^4.5.0"
   }
 }

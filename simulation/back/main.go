@@ -4,15 +4,8 @@ import (
 	"encoding/json"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/osmhelper"
-	"github.com/gorilla/websocket"
 	"net/http"
-	"sync"
 )
-
-type clients struct {
-	clients map[*websocket.Conn]bool
-	mux     sync.Mutex
-}
 
 func main() {
 	osmHelper, err := osmhelper.NewOsmHelper("./map.osm")

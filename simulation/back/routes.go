@@ -10,6 +10,7 @@ func (a *App) initializeRoutes() {
 	a.cRouter.Add("/getWays", a.getWays)
 	a.cRouter.Add("/getBoundRatio", a.getBoundRatio)
 	a.cRouter.Add("/getBounds", a.getBounds)
+	a.cRouter.Add("/getTrafficLights", a.getTrafficLights)
 }
 
 type WsMessage struct {
@@ -18,20 +19,6 @@ type WsMessage struct {
 }
 
 func (a *App) init(args commandrouter.RouteArgs) {
-	//nodes := make(osm.Nodes, 0)
-	//
-	//for _, obj := range a.osmHelper.Objects {
-	//	switch obj.ObjectID().Type() {
-	//	case "node":
-	//		nodes = append(nodes, obj.(*osm.Node))
-	//	}
-	//}
-	//err := args.Ws.WriteJSON(WsMessage{
-	//	Type: "nodes",
-	//	Body: nodes,
-	//})
-	//misc.LogError(err, false, "Write error occurred")
-
 	err := args.Ws.WriteJSON(WsMessage{
 		Type: "init",
 		Body: "finished",
@@ -43,7 +30,7 @@ func (a *App) init(args commandrouter.RouteArgs) {
 func (a *App) getWays(args commandrouter.RouteArgs) {
 	misc.LogInfo("get ways called")
 	err := args.Ws.WriteJSON(WsMessage{
-		Type: "nodes",
+		Type: "ways",
 		Body: a.osmHelper.GetWsWays(),
 	})
 
@@ -63,6 +50,15 @@ func (a *App) getBounds(args commandrouter.RouteArgs) {
 	err := args.Ws.WriteJSON(WsMessage{
 		Type: "bounds",
 		Body: a.osmHelper.GetBounds(),
+	})
+
+	misc.LogError(err, false, "Write error occurred")
+}
+
+func (a *App) getTrafficLights(args commandrouter.RouteArgs) {
+	err := args.Ws.WriteJSON(WsMessage{
+		Type: "traffic_lights",
+		Body: a.osmHelper.GetTrafficLights(),
 	})
 
 	misc.LogError(err, false, "Write error occurred")
