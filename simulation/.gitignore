@@ -2,3 +2,5 @@
 node_modules
 back/out/*
 front/src/bundle.js
+front/src/*.js
+front/src/*.js.map
