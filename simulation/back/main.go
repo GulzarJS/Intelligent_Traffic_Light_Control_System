@@ -9,7 +9,7 @@ import (
 
 func main() {
 	osmHelper, err := osmhelper.NewOsmHelper("./map.osm")
-	misc.LogError(err, true, "Error loading osmHelper")
+	misc.LogError(err, true, "error loading osmHelper")
 
 	app := NewApp(osmHelper)
 
@@ -25,5 +25,5 @@ func main() {
 		}
 	})
 	err = http.ListenAndServe(":9090", nil)
-	misc.LogError(err, true, "Cannot listen on :9090")
+	misc.LogError(err, true, "cannot listen on :9090")
 }

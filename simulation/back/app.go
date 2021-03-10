@@ -12,9 +12,10 @@ import (
 )
 
 type App struct {
-	cRouter   *commandrouter.CommandRouter
-	clnts     wshelper.Clients
-	osmHelper *osmhelper.OsmHelper
+	cRouter    *commandrouter.CommandRouter
+	clients    wshelper.Clients
+	osmHelper  *osmhelper.OsmHelper
+	clientMaps map[int]*Map
 }
 
 var (
@@ -29,11 +30,12 @@ func NewApp(osmHelper *osmhelper.OsmHelper) *App {
 	app := App{
 		osmHelper: osmHelper,
 		cRouter:   commandrouter.NewCommandRouter(),
-		clnts: wshelper.Clients{
+		clients: wshelper.Clients{
 			Clients:   make(map[int]*wshelper.WsConn),
 			ClientIds: make(map[*websocket.Conn]int),
 			NextId:    0,
 		},
+		clientMaps: make(map[int]*Map),
 	}
 
 	app.initializeRoutes()
@@ -46,20 +48,20 @@ func (a *App) serveWs(w http.ResponseWriter, r *http.Request) {
 	misc.LogInfo("serveWs called by %s", r.Host)
 	ws, err := upgrader.Upgrade(w, r, nil)
 
-	if misc.LogError(err, false, "Error while upgrading request to ws") {
+	if misc.LogError(err, false, "error while upgrading request to ws") {
 		return
 	}
 
-	a.clnts.Mux.Lock()
-	defer a.clnts.Mux.Unlock()
+	a.clients.Mux.Lock()
+	defer a.clients.Mux.Unlock()
 	wsConn := &wshelper.WsConn{
-		Id:  a.clnts.NextId,
+		Id:  a.clients.NextId,
 		Ws:  ws,
 		Mux: sync.Mutex{},
 	}
-	a.clnts.Clients[a.clnts.NextId] = wsConn
-	a.clnts.ClientIds[ws] = a.clnts.NextId
-	a.clnts.NextId = a.clnts.NextId + 1
+	a.clients.Clients[a.clients.NextId] = wsConn
+	a.clients.ClientIds[ws] = a.clients.NextId
+	a.clients.NextId = a.clients.NextId + 1
 	go a.readMessages(wsConn)
 }
 
@@ -67,22 +69,22 @@ func (a *App) readMessages(ws *wshelper.WsConn) {
 	for {
 		msgType, msg, err := ws.Ws.ReadMessage()
 		if err != nil {
-			a.clnts.Mux.Lock()
-			delete(a.clnts.ClientIds, ws.Ws)
-			delete(a.clnts.Clients, ws.Id)
-			a.clnts.Mux.Unlock()
-			misc.LogError(err, false, "app.go:62 ws.ReadMessage returned error")
+			a.clients.Mux.Lock()
+			delete(a.clients.ClientIds, ws.Ws)
+			delete(a.clients.Clients, ws.Id)
+			a.clients.Mux.Unlock()
+			misc.LogError(err, false, "")
 			return
 		}
 
 		switch msgType {
 		case websocket.CloseMessage:
-			a.clnts.Mux.Lock()
-			delete(a.clnts.ClientIds, ws.Ws)
-			delete(a.clnts.Clients, ws.Id)
-			a.clnts.Mux.Unlock()
+			a.clients.Mux.Lock()
+			delete(a.clients.ClientIds, ws.Ws)
+			delete(a.clients.Clients, ws.Id)
+			a.clients.Mux.Unlock()
 			err := ws.Ws.Close()
-			if !misc.LogError(err, false, "Cannot gracefully close ws connection") {
+			if !misc.LogError(err, false, "cannot gracefully close ws connection") {
 				misc.LogInfo("closed connection")
 			}
 			return
@@ -90,12 +92,12 @@ func (a *App) readMessages(ws *wshelper.WsConn) {
 			ws.Mux.Lock()
 			err := ws.Ws.WriteMessage(websocket.PongMessage, []byte{})
 			ws.Mux.Unlock()
-			misc.LogError(err, false, "Cannot write ws pong message")
+			misc.LogError(err, false, "cannot write ws pong message")
 			break
 		case websocket.TextMessage:
 			misc.LogInfo("Text Message received: %s", string(msg))
 			err = a.cRouter.Match(string(msg), ws)
-			misc.LogError(err, false, "Cannot route commands")
+			misc.LogError(err, false, "cannot route commands")
 		}
 	}
 }

@@ -45,6 +45,10 @@ type WsBoundRatio struct {
 	Y float64
 }
 
+const (
+	onLineEps = 0.05
+)
+
 func NewOsmHelper(file string) (*OsmHelper, error) {
 	defer misc.TimeTaken(time.Now(), "NewOsmHelper")
 	objs, err := loadOSM(file)
@@ -196,6 +200,10 @@ func calcDist(aNode, bNode *osm.Node) float64 {
 	return distance(aNode.Lat, aNode.Lon, bNode.Lat, bNode.Lon)
 }
 
+func WsCalcDist(aNode, bNode WsNode) float64 {
+	return distance(aNode.Lat, aNode.Lon, bNode.Lat, bNode.Lon)
+}
+
 // Distance function returns the distance (in meters) between two points of
 //     a given longitude and latitude relatively accurately (using a spherical
 //     approximation of the Earth) through the Haversin Distance Formula for
@@ -235,4 +243,10 @@ func isCarWay(way Way) bool {
 		highway == "tertiary" || highway == "motorway_link" ||
 		highway == "trunk_link" || highway == "primary_link" ||
 		highway == "residential"
+}
+
+func (node WsNode) IsOnWay(way WsWay) bool {
+	eps := (WsCalcDist(way.Node1, node) + WsCalcDist(node, way.Node2)) - way.Distance
+
+	return eps <= onLineEps
 }

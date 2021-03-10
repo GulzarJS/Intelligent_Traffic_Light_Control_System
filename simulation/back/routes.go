@@ -19,12 +19,23 @@ type WsMessage struct {
 }
 
 func (a *App) init(args commandrouter.RouteArgs) {
-	err := args.Ws.WriteJSON(WsMessage{
+	m, err := NewMap(a.osmHelper)
+
+	status := "finished"
+
+	if err != nil {
+		misc.LogError(err, false, "")
+		status = "error"
+	}
+
+	a.clientMaps[args.Ws.Id] = m
+
+	err = args.Ws.WriteJSON(WsMessage{
 		Type: "init",
-		Body: "finished",
+		Body: status,
 	})
 
-	misc.LogError(err, false, "Write error occurred")
+	misc.LogError(err, false, "write error occurred")
 }
 
 func (a *App) getWays(args commandrouter.RouteArgs) {
@@ -34,7 +45,7 @@ func (a *App) getWays(args commandrouter.RouteArgs) {
 		Body: a.osmHelper.GetWsWays(),
 	})
 
-	misc.LogError(err, false, "Write error occurred")
+	misc.LogError(err, false, "write error occurred")
 }
 
 func (a *App) getBoundRatio(args commandrouter.RouteArgs) {
@@ -43,7 +54,7 @@ func (a *App) getBoundRatio(args commandrouter.RouteArgs) {
 		Body: a.osmHelper.GetBoundRatio(),
 	})
 
-	misc.LogError(err, false, "Write error occurred")
+	misc.LogError(err, false, "write error occurred")
 }
 
 func (a *App) getBounds(args commandrouter.RouteArgs) {
@@ -52,7 +63,7 @@ func (a *App) getBounds(args commandrouter.RouteArgs) {
 		Body: a.osmHelper.GetBounds(),
 	})
 
-	misc.LogError(err, false, "Write error occurred")
+	misc.LogError(err, false, "write error occurred")
 }
 
 func (a *App) getTrafficLights(args commandrouter.RouteArgs) {
@@ -61,5 +72,5 @@ func (a *App) getTrafficLights(args commandrouter.RouteArgs) {
 		Body: a.osmHelper.GetTrafficLights(),
 	})
 
-	misc.LogError(err, false, "Write error occurred")
+	misc.LogError(err, false, "write error occurred")
 }

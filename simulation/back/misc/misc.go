@@ -2,6 +2,7 @@ package misc
 
 import (
 	"log"
+	"runtime"
 	"time"
 )
 
@@ -15,19 +16,20 @@ func TimeTaken(t time.Time, name string) {
 // LogError logs error and return true if err is not nil
 // does nothing and return false otherwise
 func LogError(err error, fatal bool, extraMessage string) bool {
+	pc, fn, line, _ := runtime.Caller(1)
 	if err != nil {
 		if fatal {
 			if extraMessage != "" {
-				log.Fatalf("[FATAL] %s: %v", extraMessage, err)
+				log.Fatalf("[FATAL] in %s[%s:%d] %s: %v", runtime.FuncForPC(pc).Name(), fn, line, extraMessage, err)
 			} else {
-				log.Fatalf("[FATAL] %v", err)
+				log.Fatalf("[FATAL] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, err)
 			}
 		}
 
 		if extraMessage != "" {
-			log.Printf("[ERROR] %s: %v", extraMessage, err)
+			log.Printf("[ERROR] in %s[%s:%d] %s: %v", runtime.FuncForPC(pc).Name(), fn, line, extraMessage, err)
 		} else {
-			log.Printf("[ERROR] %v", err)
+			log.Printf("[ERROR] in %s[%s:%d] %v", runtime.FuncForPC(pc).Name(), fn, line, err)
 		}
 
 		return true
