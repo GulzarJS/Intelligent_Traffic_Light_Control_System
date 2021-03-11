@@ -1,6 +1,6 @@
 import Konva from 'konva'
 import Stage from 'konva'
-import App, {WsBounds, WsMessageNode, WsMessageWay} from "./app";
+import App, {WsBounds, WsMessageNode, WsMessageWay, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
 
 export class AppUI {
@@ -25,10 +25,10 @@ export class AppUI {
         app.boundsListener.attach((bounds: WsBounds) => {
             this.bounds = bounds
             wsCommander.getWays()
-            wsCommander.getTrafficLights()
+            wsCommander.getTrafficLightsGroups()
         })
         app.waysListener.attach((this.drawWays).bind(this))
-        app.trafficLightsListener.attach((this.drawTrafficLights).bind(this))
+        app.trafficLightsGroupsListener.attach((this.drawTrafficLights).bind(this))
     }
 
     drawWays(ways: WsMessageWay[]){
@@ -60,19 +60,34 @@ export class AppUI {
         console.log(this.mapLayer.children)
     }
 
-    drawTrafficLights(nodes: WsMessageNode[]) {
-        for (const node of nodes) {
-            let coords = this.pointTransformer(node)
-            let circle = new Konva.Circle({
-                x: coords.Lon,
-                y: coords.Lat,
-                radius: 4,
-                fill: 'red'
+    drawTrafficLights(trafficLightsGroups: WsTrafficLightsGroups[]) {
+        for (const trafficLightsGroup of trafficLightsGroups) {
+            let circleCoords = this.pointTransformer(trafficLightsGroup.CenterNode)
+            let nodeCircle = new Konva.Circle({
+                x: circleCoords.Lon,
+                y: circleCoords.Lat,
+                radius: 50,
+                stroke: 'purple',
+                strokeWidth: 2,
             })
 
-            this.mapLayer.add(circle)
+            this.mapLayer.add(nodeCircle)
 
-            circle.draw()
+            nodeCircle.draw()
+
+            for (const node of trafficLightsGroup.TrafficLights) {
+                let coords = this.pointTransformer(node.Node)
+                let circle = new Konva.Circle({
+                    x: coords.Lon,
+                    y: coords.Lat,
+                    radius: 4,
+                    fill: 'red'
+                })
+
+                this.mapLayer.add(circle)
+
+                circle.draw()
+            }
         }
 
         this.mapLayer.batchDraw()

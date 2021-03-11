@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/commandrouter"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
+	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/wshelper"
 )
 
 func (a *App) initializeRoutes() {
@@ -10,7 +11,7 @@ func (a *App) initializeRoutes() {
 	a.cRouter.Add("/getWays", a.getWays)
 	a.cRouter.Add("/getBoundRatio", a.getBoundRatio)
 	a.cRouter.Add("/getBounds", a.getBounds)
-	a.cRouter.Add("/getTrafficLights", a.getTrafficLights)
+	a.cRouter.Add("/getTrafficLightsGroups", a.getTrafficLightsGroups)
 }
 
 type WsMessage struct {
@@ -66,11 +67,17 @@ func (a *App) getBounds(args commandrouter.RouteArgs) {
 	misc.LogError(err, false, "write error occurred")
 }
 
-func (a *App) getTrafficLights(args commandrouter.RouteArgs) {
+func (a *App) getTrafficLightsGroups(args commandrouter.RouteArgs) {
+	m := a.getMap(args.Ws)
+
 	err := args.Ws.WriteJSON(WsMessage{
-		Type: "traffic_lights",
-		Body: a.osmHelper.GetTrafficLights(),
+		Type: "traffic_lights_groups",
+		Body: m.GetTrafficGroups(),
 	})
 
 	misc.LogError(err, false, "write error occurred")
+}
+
+func (a *App) getMap(conn *wshelper.WsConn) *Map {
+	return a.clientMaps[conn.Id]
 }

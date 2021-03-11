@@ -8,7 +8,7 @@ export default class App {
     private wsCommander: WsCommander
     public boundsListener: AsyncEvent<WsBounds>
     public waysListener: AsyncEvent<WsMessageWay[]>
-    public trafficLightsListener: AsyncEvent<WsMessageNode[]>
+    public trafficLightsGroupsListener: AsyncEvent<WsTrafficLightsGroups[]>
 
     constructor(ws: WebSocket, wsCommander: WsCommander) {
         this.ws = ws
@@ -24,7 +24,7 @@ export default class App {
         this.cRouter.add("init", (this.init).bind(this))
         this.cRouter.add("ways", (this.gotWays).bind(this))
         this.cRouter.add("bounds", (this.gotBounds).bind(this))
-        this.cRouter.add("traffic_lights", (this.gotTrafficLights).bind(this))
+        this.cRouter.add("traffic_lights_groups", (this.gotTrafficLightsGroups).bind(this))
     }
 
     private initializeWs(){
@@ -45,7 +45,7 @@ export default class App {
     private initializeListeners() {
         this.waysListener = new AsyncEvent<WsMessageWay[]>()
         this.boundsListener = new AsyncEvent<WsBounds>()
-        this.trafficLightsListener = new AsyncEvent<WsMessageNode[]>()
+        this.trafficLightsGroupsListener = new AsyncEvent<WsTrafficLightsGroups[]>()
     }
 
     private init(message: WsMessage<string>){
@@ -60,8 +60,8 @@ export default class App {
         this.boundsListener.post(message.Body)
     }
 
-    private gotTrafficLights(message: WsMessage<WsMessageNode[]>) {
-        this.trafficLightsListener.post(message.Body)
+    private gotTrafficLightsGroups(message: WsMessage<WsTrafficLightsGroups[]>) {
+        this.trafficLightsGroupsListener.post(message.Body)
     }
 }
 
@@ -83,4 +83,17 @@ export interface WsBounds {
     MaxLon: number
     MinLat: number
     MinLon: number
+}
+
+export interface WsTrafficLightsGroups {
+    TrafficLights: WsTrafficLight[]
+    CenterNode: WsMessageNode
+}
+
+export interface WsTrafficLight {
+    Node: WsMessageNode
+    LastGreen: Date
+    GreenDurationSeconds: number
+    RedDurationSeconds: number
+    OnWay: WsMessageWay
 }

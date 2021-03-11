@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/osmhelper"
+	"sync"
 	"time"
 )
 
@@ -22,6 +24,8 @@ type TrafficLight struct {
 
 type TrafficLightsGroup struct {
 	TrafficLights []TrafficLight
+	CenterNode    osmhelper.WsNode
+	Mux           sync.Mutex `json:"-"`
 }
 
 const (
@@ -29,6 +33,7 @@ const (
 )
 
 func NewMap(osmHelper *osmhelper.OsmHelper) (*Map, error) {
+	defer misc.TimeTaken(time.Now(), "NewMap")
 	m := &Map{
 		osmHelper:           osmHelper,
 		TrafficLightsGroups: make([]TrafficLightsGroup, 0),
@@ -80,7 +85,23 @@ func NewMap(osmHelper *osmhelper.OsmHelper) (*Map, error) {
 		if !foundGroup {
 			m.TrafficLightsGroups = append(m.TrafficLightsGroups, TrafficLightsGroup{TrafficLights: []TrafficLight{trafficLight}})
 		}
+
+		for k, trafficLightsGroup := range m.TrafficLightsGroups {
+			var nearestNode osmhelper.WsNode
+
+			nearestNode = trafficLightsGroup.TrafficLights[0].OnWay.Node2
+			if osmhelper.WsCalcDist(trafficLightsGroup.TrafficLights[0].Node, trafficLightsGroup.TrafficLights[0].OnWay.Node1) <
+				osmhelper.WsCalcDist(trafficLightsGroup.TrafficLights[0].Node, trafficLightsGroup.TrafficLights[0].OnWay.Node2) {
+				nearestNode = trafficLightsGroup.TrafficLights[0].OnWay.Node1
+			}
+
+			m.TrafficLightsGroups[k].CenterNode = nearestNode
+		}
 	}
 
 	return m, nil
+}
+
+func (m *Map) GetTrafficGroups() []TrafficLightsGroup {
+	return m.TrafficLightsGroups
 }
