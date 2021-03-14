@@ -78,6 +78,49 @@ export class AppUI {
         this.mapLayer.batchDraw()
     }
 
+
+
+    drawButtons(name: string, x: number, y: number) {
+
+        this.stage.add(this.mapLayer);
+
+        var button = new Konva.Label({
+            x: x,
+            y: y,
+            opacity: 0.75
+        });
+        this.mapLayer.add(button);
+
+        button.add(new Konva.Tag({
+            fill: 'black',
+            lineJoin: 'round',
+            shadowColor: 'black',
+            shadowBlur: 10,
+            // shadowOffset: 10,
+            shadowOpacity: 0.5
+        }));
+
+
+        button.add(new Konva.Text({
+            text: name,
+            fontFamily: 'Calibri',
+            fontSize: 24,
+            padding: 5,
+            fill: 'white'
+        }));
+
+
+        button.on('click', () => {
+            alert('clicked on ' + name + ' button');
+        })
+
+        document.querySelector('#button').addEventListener('click', () => {
+            alert('clicked on ' + name);
+        })
+
+        this.mapLayer.draw();
+    }
+
     pointTransformer(p: Point): Point {
         let ret = new Point(p.Lon, p.Lat)
 
@@ -91,6 +134,8 @@ export class AppUI {
 
         return ret
     }
+
+
 }
 
 class Point {
@@ -100,4 +145,6 @@ class Point {
         this.Lat = lat
         this.Lon = lon
     }
+
+
 }

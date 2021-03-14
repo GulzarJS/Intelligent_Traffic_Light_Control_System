@@ -2,3 +2,39 @@
     width: 100vw;
     height: 100vh;
 }
+
+#red_button {
+    position: absolute;
+    top: 30px;
+    left: 160px;
+    margin-top: 30px;
+    height: 30px;
+    width: 120px;
+    text-align: center;
+
+}
+#button {
+    position: absolute;
+    top: 50px;
+    left: 300px;
+
+}
+
+#green_button {
+    position: absolute ;
+    top: 30px;
+    left: 160px;
+    margin-top: 70px;
+    height: 30px;
+    width: 120px;
+    text-align: center;
+}
+#ai_button {
+    position: absolute;
+    top: 30px;
+    left: 160px;
+     margin-top: 110px;
+     height: 30px;
+     width: 120px;
+     text-align: center;
+}
