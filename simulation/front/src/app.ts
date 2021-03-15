@@ -87,7 +87,6 @@ export interface WsBounds {
 
 export interface WsTrafficLightsGroups {
     TrafficLights: WsTrafficLight[]
-    CenterNode: WsMessageNode
 }
 
 export interface WsTrafficLight {
@@ -96,4 +95,5 @@ export interface WsTrafficLight {
     GreenDurationSeconds: number
     RedDurationSeconds: number
     OnWay: WsMessageWay
+    CenterNode: WsMessageNode
 }
