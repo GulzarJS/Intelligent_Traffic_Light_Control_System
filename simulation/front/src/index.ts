@@ -12,6 +12,3 @@ const app = new App(socket, wsCommander)
 const ui = new AppUI(wsCommander, app)
 
 
-ui.drawButtons('Set Green Light Duration', 20, 20);
-ui.drawButtons('Set Red Light Duration',40, 40)
-ui.drawButtons('Entrust AI', 60, 60);

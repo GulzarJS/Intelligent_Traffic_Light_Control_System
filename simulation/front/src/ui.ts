@@ -6,6 +6,7 @@ import WsCommander from "./wscommander";
 export class AppUI {
     public stage: Stage.Stage
     public mapLayer: Stage.Layer
+    public trafficLightsUILayer: Stage.Layer
     private wsCommander: WsCommander
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
@@ -19,8 +20,10 @@ export class AppUI {
         })
 
         this.mapLayer = new Konva.Layer()
+        this.trafficLightsUILayer = new Konva.Layer()
 
         this.stage.add(this.mapLayer)
+        this.stage.add(this.trafficLightsUILayer);
 
         app.boundsListener.attach((bounds: WsBounds) => {
             this.bounds = bounds
@@ -29,6 +32,16 @@ export class AppUI {
         })
         app.waysListener.attach((this.drawWays).bind(this))
         app.trafficLightsListener.attach((this.drawTrafficLights).bind(this))
+
+
+        // let names = ['Set Green Light Duration', 'Set Red Light Duration', 'Entrust AI'];
+        // this.drawButtons(names,20,20)
+
+        this.createButtons('Set Green Light Duration', 20, 20);
+        this.createButtons( 'Set Red Light Duration', 20, 50);
+        this.createButtons('Entrust AI', 20, 80);
+
+
     }
 
     drawWays(ways: WsMessageWay[]){
@@ -79,10 +92,21 @@ export class AppUI {
     }
 
 
+    // drawButtons(names: string[], initialX: number, initialY: number ){
+    //
+    //     let currentY = initialY;
+    //
+    //
+    //     for (var i=0;i < names.length; i++) {
+    //         this.createButtons(names[i], initialX, currentY);
+    //
+    //         currentY += 30
+    //
+    //     }
+    //
+    // }
 
-    drawButtons(name: string, x: number, y: number) {
-
-        this.stage.add(this.mapLayer);
+    createButtons(name: string, x: number, y: number) {
 
         var button = new Konva.Label({
             x: x,
