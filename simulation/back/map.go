@@ -2,7 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/osmhelper"
+	"sync"
 	"time"
 )
 
@@ -22,13 +24,15 @@ type TrafficLight struct {
 
 type TrafficLightsGroup struct {
 	TrafficLights []TrafficLight
+	Mux           sync.Mutex `json:"-"`
 }
 
 const (
-	epsTrafficLightGroup = 5
+	epsTrafficLightGroup = 50
 )
 
 func NewMap(osmHelper *osmhelper.OsmHelper) (*Map, error) {
+	defer misc.TimeTaken(time.Now(), "NewMap")
 	m := &Map{
 		osmHelper:           osmHelper,
 		TrafficLightsGroups: make([]TrafficLightsGroup, 0),
@@ -40,18 +44,28 @@ func NewMap(osmHelper *osmhelper.OsmHelper) (*Map, error) {
 
 	for _, wsTrafficLight := range trafficLights {
 
-		var onWay osmhelper.WsWay
-		onWaySet := false
+		// Find the way the traffic light is on
+
+		var onWay1 osmhelper.WsWay
+		var onWay2 osmhelper.WsWay
+		onWaySet := 0
 		for _, way := range m.Ways {
 			if wsTrafficLight.IsOnWay(way) {
-				onWay = way
-				onWaySet = true
-				break
+				onWaySet++
+				if onWaySet == 1 {
+					onWay1 = way
+				} else if onWaySet == 2 {
+					onWay2 = way
+				} else {
+					break
+				}
 			}
 		}
 
-		if !onWaySet {
-			return nil, fmt.Errorf("cannot find way for traffic light (%d)", wsTrafficLight.ID)
+		onWay := onWay2
+
+		if onWay1.Distance < onWay2.Distance {
+			onWay = onWay1
 		}
 
 		trafficLight := TrafficLight{
@@ -61,6 +75,8 @@ func NewMap(osmHelper *osmhelper.OsmHelper) (*Map, error) {
 			RedDurationSeconds:   20,
 			OnWay:                onWay,
 		}
+
+		// Fill the TrafficLightsGroups
 
 		foundGroup := false
 		for i, group := range m.TrafficLightsGroups {
@@ -82,5 +98,20 @@ func NewMap(osmHelper *osmhelper.OsmHelper) (*Map, error) {
 		}
 	}
 
+	for i, group := range m.TrafficLightsGroups {
+		firstRefLight := group.TrafficLights[0]
+
+		for j := 1; j < len(group.TrafficLights); j++ {
+			if firstRefLight.OnWay.Tags.Find("name") != group.TrafficLights[j].OnWay.Tags.Find("name") {
+				dur, _ := time.ParseDuration(fmt.Sprintf("%-ds", group.TrafficLights[j].GreenDurationSeconds))
+				m.TrafficLightsGroups[i].TrafficLights[j].LastGreen = group.TrafficLights[j].LastGreen.Add(dur)
+			}
+		}
+	}
+
 	return m, nil
+}
+
+func (m *Map) GetTrafficGroups() []TrafficLightsGroup {
+	return m.TrafficLightsGroups
 }

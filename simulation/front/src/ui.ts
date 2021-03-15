@@ -1,6 +1,8 @@
 import Konva from 'konva'
 import Stage from 'konva'
-import App, {WsBounds, WsMessageNode, WsMessageWay} from "./app";
+import { Layer } from 'konva/types/Layer';
+import { Circle } from 'konva/types/shapes/Circle';
+import App, {WsBounds, WsMessageNode, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
 
 export class AppUI {
@@ -28,7 +30,7 @@ export class AppUI {
         app.boundsListener.attach((bounds: WsBounds) => {
             this.bounds = bounds
             wsCommander.getWays()
-            wsCommander.getTrafficLights()
+            wsCommander.getTrafficLightsGroups()
         })
         app.waysListener.attach((this.drawWays).bind(this))
         app.trafficLightsListener.attach((this.drawTrafficLights).bind(this))
@@ -42,6 +44,7 @@ export class AppUI {
         this.createButtons('Entrust AI', 20, 80);
 
 
+        app.trafficLightsGroupsListener.attach((this.drawTrafficLights).bind(this))
     }
 
     drawWays(ways: WsMessageWay[]){
@@ -64,7 +67,7 @@ export class AppUI {
             line.draw()
 
             line.addEventListener("click", (e: Event) => {
-                console.log("way", way.Tags)
+                console.log("way", way)
             } )
         }
 
@@ -73,19 +76,56 @@ export class AppUI {
         console.log(this.mapLayer.children)
     }
 
-    drawTrafficLights(nodes: WsMessageNode[]) {
-        for (const node of nodes) {
-            let coords = this.pointTransformer(node)
-            let circle = new Konva.Circle({
-                x: coords.Lon,
-                y: coords.Lat,
-                radius: 4,
-                fill: 'red'
+    drawTrafficLights(trafficLightsGroups: WsTrafficLightsGroups[]) {
+        for (const trafficLightsGroup of trafficLightsGroups) {
+            let circleCoords = this.findTrafficLightsGroupCenter(trafficLightsGroup)
+            let nodeCircle = new Konva.Circle({
+                x: circleCoords.Lon,
+                y: circleCoords.Lat,
+                radius: 50,
+                stroke: 'purple',
+                strokeWidth: 2,
             })
 
-            this.mapLayer.add(circle)
+            this.mapLayer.add(nodeCircle)
 
-            circle.draw()
+            nodeCircle.draw()
+
+            for (const node of trafficLightsGroup.TrafficLights) {
+                let coords = this.pointTransformer(node.Node)
+
+                let diffSeconds = (new Date()).getTime() - (new Date(node.LastGreen)).getTime()/1000
+                // if (diffSeconds > 3)
+                //     console.log(diffSeconds)
+                diffSeconds = diffSeconds%(node.RedDurationSeconds + node.RedDurationSeconds)
+                let fill = ''
+                let duration = 0
+
+                if (diffSeconds > 0 && diffSeconds < node.GreenDurationSeconds) {
+                    fill = 'green'
+                    duration = node.GreenDurationSeconds - diffSeconds
+                } else {
+                    fill = 'red'
+                    duration = node.RedDurationSeconds - (diffSeconds - node.GreenDurationSeconds)
+                }
+
+                console.log(duration)
+
+                let circle = new Konva.Circle({
+                    x: coords.Lon,
+                    y: coords.Lat,
+                    radius: 6,
+                    fill: fill
+                })
+
+                setTimeout(() => {
+                    this.toggleTrafficLightFill(circle, node, this.mapLayer)
+                }, duration * 1000)
+
+                this.mapLayer.add(circle)
+
+                circle.draw()
+            }
         }
 
         this.mapLayer.batchDraw()
@@ -156,6 +196,32 @@ export class AppUI {
     }
 
 
+
+    findTrafficLightsGroupCenter(t: WsTrafficLightsGroups): Point {
+        let p = new Point(0,0)
+
+        for (let trafficLight of t.TrafficLights) {
+            p.Lon += trafficLight.Node.Lon
+            p.Lat += trafficLight.Node.Lat
+        }
+
+        p.Lon = p.Lon / t.TrafficLights.length
+        p.Lat = p.Lat / t.TrafficLights.length
+
+        return this.pointTransformer(p)
+    }
+
+    toggleTrafficLightFill(circle: Circle, t: WsTrafficLight, l: Layer) {
+        let duration = t.RedDurationSeconds * 1000
+        if (circle.fill() == 'red') {
+            circle.fill('green')
+            duration = t.GreenDurationSeconds * 1000
+        }
+        else
+            circle.fill('red')
+        l.batchDraw()
+        setTimeout(() => this.toggleTrafficLightFill(circle, t, l), duration)
+    }
 }
 
 class Point {
