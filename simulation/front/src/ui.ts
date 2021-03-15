@@ -138,10 +138,6 @@ export class AppUI {
             alert('clicked on ' + name + ' button');
         })
 
-        document.querySelector('#button').addEventListener('click', () => {
-            alert('clicked on ' + name);
-        })
-
         this.mapLayer.draw();
     }
 
