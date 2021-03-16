@@ -22,10 +22,10 @@ export class AppUI {
         })
 
         this.mapLayer = new Konva.Layer()
-        this.trafficLightsUILayer = new Konva.Layer()
+        this.trafficLightsUILayer = new  Konva.Layer()
 
         this.stage.add(this.mapLayer)
-        this.stage.add(this.trafficLightsUILayer);
+
 
         app.boundsListener.attach((bounds: WsBounds) => {
             this.bounds = bounds
@@ -33,16 +33,11 @@ export class AppUI {
             wsCommander.getTrafficLightsGroups()
         })
         app.waysListener.attach((this.drawWays).bind(this))
-        app.trafficLightsListener.attach((this.drawTrafficLights).bind(this))
+        // app.trafficLightsListener.attach((this.drawTrafficLights).bind(this))
 
+        // this.drawButtons()
 
-        // let names = ['Set Green Light Duration', 'Set Red Light Duration', 'Entrust AI'];
-        // this.drawButtons(names,20,20)
-
-        this.createButtons('Set Green Light Duration', 20, 20);
-        this.createButtons( 'Set Red Light Duration', 20, 50);
-        this.createButtons('Entrust AI', 20, 80);
-
+        this.createButtons("Open Button Layer", 20, 20)
 
         app.trafficLightsGroupsListener.attach((this.drawTrafficLights).bind(this))
     }
@@ -87,9 +82,17 @@ export class AppUI {
                 strokeWidth: 2,
             })
 
+            nodeCircle.on('dblclick', () => {
+                alert('clicked on circle');
+            })
+
             this.mapLayer.add(nodeCircle)
 
+
+
             nodeCircle.draw()
+
+
 
             for (const node of trafficLightsGroup.TrafficLights) {
                 let coords = this.pointTransformer(node.Node)
@@ -118,6 +121,8 @@ export class AppUI {
                     fill: fill
                 })
 
+
+
                 setTimeout(() => {
                     this.toggleTrafficLightFill(circle, node, this.mapLayer)
                 }, duration * 1000)
@@ -132,29 +137,36 @@ export class AppUI {
     }
 
 
-    // drawButtons(names: string[], initialX: number, initialY: number ){
-    //
-    //     let currentY = initialY;
-    //
-    //
-    //     for (var i=0;i < names.length; i++) {
-    //         this.createButtons(names[i], initialX, currentY);
-    //
-    //         currentY += 30
-    //
-    //     }
-    //
-    // }
+    drawButtons(){
+
+        this.stage.add(this.trafficLightsUILayer);
+
+        this.createButtons('Set Green Light Duration', 20, 20);
+        this.createButtons( 'Set Red Light Duration', 20, 60);
+        this.createButtons('Entrust AI', 20, 100);
+
+
+
+
+    }
 
     createButtons(name: string, x: number, y: number) {
 
-        var button = new Konva.Label({
+        let button = new Konva.Label({
             x: x,
             y: y,
             opacity: 0.75
         });
-        this.mapLayer.add(button);
 
+
+
+
+        if(name == 'Open Button Layer'){
+            this.mapLayer.add(button);
+        }else{
+
+            this.trafficLightsUILayer.add(button);
+        }
         button.add(new Konva.Tag({
             fill: 'black',
             lineJoin: 'round',
@@ -175,10 +187,22 @@ export class AppUI {
 
 
         button.on('click', () => {
+            if(name == 'Open Button Layer'){
+                this.drawButtons()
+            }else{
+
             alert('clicked on ' + name + ' button');
+            }
         })
 
-        this.mapLayer.draw();
+        if(name == 'Open Button Layer'){
+
+            this.mapLayer.draw();
+
+        }else{
+
+            this.trafficLightsUILayer.draw();
+        }
     }
 
     pointTransformer(p: Point): Point {
