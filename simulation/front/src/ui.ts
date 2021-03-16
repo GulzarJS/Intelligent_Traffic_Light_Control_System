@@ -33,11 +33,6 @@ export class AppUI {
             wsCommander.getTrafficLightsGroups()
         })
         app.waysListener.attach((this.drawWays).bind(this))
-        // app.trafficLightsListener.attach((this.drawTrafficLights).bind(this))
-
-        // this.drawButtons()
-
-        // this.createButtons("Open Button Layer", 20, 20)
 
         app.trafficLightsGroupsListener.attach((this.drawTrafficLights).bind(this))
     }
@@ -84,6 +79,7 @@ export class AppUI {
 
             nodeCircle.on('dblclick', () => {
                 this.drawButtons()
+                this.trafficLightsUILayer.show()
             })
 
             this.mapLayer.add(nodeCircle)
@@ -141,11 +137,27 @@ export class AppUI {
 
         this.stage.add(this.trafficLightsUILayer);
 
+        let border = new Konva.Rect({
+            width: 300,
+            height: 250,
+            fill: 'gray',
+            stroke: 'gray',
+            strokeWidth: 4,
+            draggable: true,
+            shadowColor: 'gray',
+            shadowBlur: 10,
+            // shadowOffset: 10,
+            shadowOpacity: 0.5
+        })
+
+        this.trafficLightsUILayer.add(border)
         this.createButtons('Set Green Light Duration', 20, 20);
-        this.createButtons( 'Set Red Light Duration', 20, 60);
-        this.createButtons('Entrust AI', 20, 100);
+        this.createButtons( 'Set Red Light Duration', 20, 70);
+        this.createButtons('Entrust AI', 20, 120);
+        this.createButtons('Exit', 20, 170);
 
 
+        this.trafficLightsUILayer.draw()
 
 
     }
@@ -159,14 +171,9 @@ export class AppUI {
         });
 
 
-
-
-        if(name == 'Open Button Layer'){
-            this.mapLayer.add(button);
-        }else{
-
             this.trafficLightsUILayer.add(button);
-        }
+
+
         button.add(new Konva.Tag({
             fill: 'black',
             lineJoin: 'round',
@@ -187,22 +194,20 @@ export class AppUI {
 
 
         button.on('click', () => {
-            if(name == 'Open Button Layer'){
-                this.drawButtons()
+
+            if(name == 'Exit') {
+
+                this.trafficLightsUILayer.hide()
             }else{
 
-            alert('clicked on ' + name + ' button');
+                alert('clicked on ' + name + ' button');
+
             }
         })
 
-        if(name == 'Open Button Layer'){
-
-            this.mapLayer.draw();
-
-        }else{
 
             this.trafficLightsUILayer.draw();
-        }
+
     }
 
     pointTransformer(p: Point): Point {
