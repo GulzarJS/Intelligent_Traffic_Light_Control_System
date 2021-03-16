@@ -37,7 +37,7 @@ export class AppUI {
 
         // this.drawButtons()
 
-        this.createButtons("Open Button Layer", 20, 20)
+        // this.createButtons("Open Button Layer", 20, 20)
 
         app.trafficLightsGroupsListener.attach((this.drawTrafficLights).bind(this))
     }
@@ -83,7 +83,7 @@ export class AppUI {
             })
 
             nodeCircle.on('dblclick', () => {
-                alert('clicked on circle');
+                this.drawButtons()
             })
 
             this.mapLayer.add(nodeCircle)
