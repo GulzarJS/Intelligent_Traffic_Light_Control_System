@@ -247,10 +247,9 @@ export class AppUI {
 
             textArea.focus();
 
-            textArea.addEventListener('keydown', function (e) {
+            textArea.addEventListener('keydown', (e) => {
                 if(e.keyCode === 13) {
                     textNode.text(textArea.value);
-                    // @ts-ignore
                     this.trafficLightsUILayer.draw();
                     document.body.removeChild(textArea);
                 }
