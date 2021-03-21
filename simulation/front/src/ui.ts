@@ -25,7 +25,7 @@ export class AppUI {
         this.trafficLightsUILayer = new Konva.Layer()
         this.trafficLightsUILayer.hide()
 
-        this.drawButtons()
+        this.setUpTrafficLightUILayer()
 
         this.stage.add(this.mapLayer)
         this.stage.add(this.trafficLightsUILayer)
@@ -135,9 +135,7 @@ export class AppUI {
     }
 
 
-    drawButtons() {
-        // @ts-ignore
-        // @ts-ignore
+    setUpTrafficLightUILayer() {
         let border = new Konva.Rect({
             width: 300,
             height: 250,
