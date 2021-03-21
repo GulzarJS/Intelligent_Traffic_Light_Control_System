@@ -9,13 +9,15 @@ export class ButtonUI{
     public layer: Stage.Layer
     public ui: AppUI
 
-    constructor(ui: AppUI){
-        this.ui = ui
-        this.stage = ui.stage
+    constructor(stage: Stage.Stage){
+
+        this.stage = stage
 
         this.layer = new Konva.Layer()
-        this.layer.hide()
+
         this.stage.add(this.layer)
+
+        this.layer.hide()
 
         this.setupLayer()
 
@@ -26,11 +28,11 @@ export class ButtonUI{
         let border = new Konva.Rect({
             width: 400,
             height: 250,
-            fill: 'gray',
-            stroke: 'gray',
+            fill: 'red',
+            stroke: 'red',
             strokeWidth: 4,
             draggable: true,
-            shadowColor: 'gray',
+            shadowColor: 'red',
             shadowBlur: 10,
             // shadowOffset: 10,
             shadowOpacity: 0.5
@@ -97,6 +99,52 @@ export class ButtonUI{
         return button
     }
 
+
+    // createTextField(name: string, x: number, y: number): Konva.Text {
+    //
+    //     let textNode = new Konva.Text({
+    //         text: 'Some text here',
+    //         x: x,
+    //         y: y,
+    //         fontSize: 20,
+    //     });
+    //
+    //     this.trafficLightsUILayer.add(textNode);
+    //     this.trafficLightsUILayer.draw();
+    //
+    //     textNode.on('click', () => {
+    //
+    //         let textPosition = textNode.getAbsolutePosition();
+    //
+    //         let  stagebox = this.stage.container().getBoundingClientRect();
+    //
+    //         let areaPosition = {
+    //             x: stagebox.left + textPosition.x,
+    //             y: stagebox.top + textPosition.y,
+    //         };
+    //
+    //         let textArea = document.createElement('textarea');
+    //         document.body.appendChild(textArea);
+    //
+    //         textArea.value = textNode.text();
+    //         textArea.style.position = 'absolute';
+    //         textArea.style.backgroundColor = 'lightgray'
+    //         textArea.style.top = areaPosition.y + 'px';
+    //         textArea.style.left = areaPosition.x + 'px';
+    //         textArea.style.width = String(textNode.width());
+    //
+    //         textArea.focus();
+    //
+    //         textArea.addEventListener('keydown', (e) => {
+    //             if(e.keyCode === 13) {
+    //                 textNode.text(textArea.value);
+    //                 this.trafficLightsUILayer.draw();
+    //                 document.body.removeChild(textArea);
+    //             }
+    //         });
+    //     });
+    //     return textNode
+    // }
 
     showLayer(){
         this.layer.show()
