@@ -28,21 +28,23 @@ export class ButtonUI{
         let border = new Konva.Rect({
             width: 400,
             height: 250,
-            fill: 'red',
-            stroke: 'red',
+            fill: 'gray',
+            stroke: 'gray',
             strokeWidth: 4,
             draggable: true,
-            shadowColor: 'red',
+            shadowColor: 'gray',
             shadowBlur: 10,
             // shadowOffset: 10,
             shadowOpacity: 0.5
         })
 
         this.layer.add(border)
-        let setGreenDur = this.createButtons('Set Green Light Duration', 20, 20);
-        let setRedDur = this.createButtons('Set Red Light Duration', 20, 70);
+        let setGreenDur = this.createButtons('Green Light Duration', 20, 20);
+        let setRedDur = this.createButtons('Red Light Duration', 20, 70);
         let entrustAI = this.createButtons('Entrust AI', 20, 120);
         let exit = this.createButtons('Exit', 20, 170);
+        let gLDuration = this.createTextField("40", 260,30)
+        let rLDuration = this.createTextField("40", 260,80)
 
 
         exit.on('click', () => {
@@ -100,51 +102,54 @@ export class ButtonUI{
     }
 
 
-    // createTextField(name: string, x: number, y: number): Konva.Text {
-    //
-    //     let textNode = new Konva.Text({
-    //         text: 'Some text here',
-    //         x: x,
-    //         y: y,
-    //         fontSize: 20,
-    //     });
-    //
-    //     this.trafficLightsUILayer.add(textNode);
-    //     this.trafficLightsUILayer.draw();
-    //
-    //     textNode.on('click', () => {
-    //
-    //         let textPosition = textNode.getAbsolutePosition();
-    //
-    //         let  stagebox = this.stage.container().getBoundingClientRect();
-    //
-    //         let areaPosition = {
-    //             x: stagebox.left + textPosition.x,
-    //             y: stagebox.top + textPosition.y,
-    //         };
-    //
-    //         let textArea = document.createElement('textarea');
-    //         document.body.appendChild(textArea);
-    //
-    //         textArea.value = textNode.text();
-    //         textArea.style.position = 'absolute';
-    //         textArea.style.backgroundColor = 'lightgray'
-    //         textArea.style.top = areaPosition.y + 'px';
-    //         textArea.style.left = areaPosition.x + 'px';
-    //         textArea.style.width = String(textNode.width());
-    //
-    //         textArea.focus();
-    //
-    //         textArea.addEventListener('keydown', (e) => {
-    //             if(e.keyCode === 13) {
-    //                 textNode.text(textArea.value);
-    //                 this.trafficLightsUILayer.draw();
-    //                 document.body.removeChild(textArea);
-    //             }
-    //         });
-    //     });
-    //     return textNode
-    // }
+    createTextField(text: string, x: number, y: number): Konva.Text {
+
+        let textNode = new Konva.Text({
+            text: text,
+            x: x,
+            y: y,
+            fontSize: 24,
+        });
+
+        this.layer.add(textNode);
+        this.layer.draw();
+
+        textNode.on('click', () => {
+
+            let textPosition = textNode.getAbsolutePosition();
+
+            let  stagebox = this.stage.container().getBoundingClientRect();
+
+            let areaPosition = {
+                x: stagebox.left + textPosition.x,
+                y: stagebox.top + textPosition.y - 10,
+            };
+
+            let textArea = document.createElement('textarea');
+            document.body.appendChild(textArea);
+
+            textArea.value = textNode.text();
+            textArea.style.position = 'absolute';
+            textArea.style.backgroundColor = 'gray'
+            textArea.style.top = areaPosition.y + 'px';
+            textArea.style.left = areaPosition.x + 'px';
+            // textArea.style.width = String(textNode.width());
+            textArea.style.fontSize = String(textNode.fontSize());
+            textArea.style.width = textNode.width() - textNode.padding() * 2 + 'px';
+
+
+            textArea.focus();
+
+            textArea.addEventListener('keydown', (e) => {
+                if(e.keyCode === 13) {
+                    textNode.text(textArea.value);
+                    this.layer.draw();
+                    document.body.removeChild(textArea);
+                }
+            });
+        });
+        return textNode
+    }
 
     showLayer(){
         this.layer.show()
