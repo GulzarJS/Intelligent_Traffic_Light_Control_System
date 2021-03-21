@@ -4,11 +4,12 @@ import {Layer} from 'konva/types/Layer';
 import {Circle} from 'konva/types/shapes/Circle';
 import App, {WsBounds, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
+import {ButtonUI} from "./buttons";
 
 export class AppUI {
     public stage: Stage.Stage
     public mapLayer: Stage.Layer
-    public trafficLightsUILayer: Stage.Layer
+    // public trafficLightsUILayer: ButtonUI
     private wsCommander: WsCommander
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
@@ -22,14 +23,11 @@ export class AppUI {
         })
 
         this.mapLayer = new Konva.Layer()
-        this.trafficLightsUILayer = new Konva.Layer()
-        this.trafficLightsUILayer.hide()
-
-        this.setUpTrafficLightUILayer()
+        // this.trafficLightsUILayer = new ButtonUI(this)
 
 
         this.stage.add(this.mapLayer)
-        this.stage.add(this.trafficLightsUILayer)
+
 
 
         app.boundsListener.attach((bounds: WsBounds) => {
@@ -82,11 +80,11 @@ export class AppUI {
                 strokeWidth: 2,
             })
 
-            nodeCircle.on('click', () => {
-                this.trafficLightsUILayer.show()
-                this.trafficLightsUILayer.draw()
-                this.stage.draw()
-            })
+            // nodeCircle.on('click', () => {
+            //     this.trafficLightsUILayer.showLayer()
+            //     this.trafficLightsUILayer.drawLayer()
+            //     this.stage.draw()
+            // })
 
             this.mapLayer.add(nodeCircle)
 
@@ -136,127 +134,52 @@ export class AppUI {
     }
 
 
-    setUpTrafficLightUILayer() {
-        let border = new Konva.Rect({
-            width: 400,
-            height: 250,
-            fill: 'gray',
-            stroke: 'gray',
-            strokeWidth: 4,
-            draggable: true,
-            shadowColor: 'gray',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        })
 
-        this.trafficLightsUILayer.add(border)
-        let setGreenDur = this.createButtons('Set Green Light Duration', 20, 20);
-        let setRedDur = this.createButtons('Set Red Light Duration', 20, 70);
-        let entrustAI = this.createButtons('Entrust AI', 20, 120);
-        let exit = this.createButtons('Exit', 20, 170);
-        let textfield = this.createTextField('hello', 300, 20);
-
-
-        exit.on('click', () => {
-            this.trafficLightsUILayer.hide()
-        })
-
-        setGreenDur.on('click', () => {
-            alert('clicked on setGreenDur button');
-        })
-
-        setRedDur.on('click', (event) => {
-            alert('clicked on setRedDur button');
-        })
-
-        entrustAI.on('click', () => {
-            alert('clicked on entrust AI button');
-        })
-
-        this.trafficLightsUILayer.draw()
-    }
-
-    createButtons(name: string, x: number, y: number): Konva.Label {
-
-        let button = new Konva.Label({
-            x: x,
-            y: y,
-            opacity: 0.75
-        });
-
-
-        this.trafficLightsUILayer.add(button);
-
-
-        button.add(new Konva.Tag({
-            fill: 'black',
-            lineJoin: 'round',
-            shadowColor: 'black',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        }));
-
-
-        button.add(new Konva.Text({
-            text: name,
-            fontFamily: 'Calibri',
-            fontSize: 24,
-            padding: 5,
-            fill: 'white'
-        }));
-
-        this.trafficLightsUILayer.draw();
-
-        return button
-    }
-
-    createTextField(name: string, x: number, y: number): Konva.Text {
-
-        let textNode = new Konva.Text({
-            text: 'Some text here',
-            x: x,
-            y: y,
-            fontSize: 20,
-        });
-
-        this.trafficLightsUILayer.add(textNode);
-        this.trafficLightsUILayer.draw();
-
-        textNode.on('click', () => {
-
-            let textPosition = textNode.getAbsolutePosition();
-
-            let  stagebox = this.stage.container().getBoundingClientRect();
-
-            let areaPosition = {
-                x: stagebox.left + textPosition.x,
-                y: stagebox.top + textPosition.y,
-            };
-
-            let textArea = document.createElement('textarea');
-            document.body.appendChild(textArea);
-
-            textArea.value = textNode.text();
-            textArea.style.position = 'absolute';
-            textArea.style.backgroundColor = 'lightgray'
-            textArea.style.top = areaPosition.y + 'px';
-            textArea.style.left = areaPosition.x + 'px';
-            textArea.style.width = String(textNode.width());
-
-            textArea.focus();
-
-            textArea.addEventListener('keydown', (e) => {
-                if(e.keyCode === 13) {
-                    textNode.text(textArea.value);
-                    this.trafficLightsUILayer.draw();
-                    document.body.removeChild(textArea);
-                }
-            });
-        });
-        return textNode
-    }
+    // createTextField(name: string, x: number, y: number): Konva.Text {
+    //
+    //     let textNode = new Konva.Text({
+    //         text: 'Some text here',
+    //         x: x,
+    //         y: y,
+    //         fontSize: 20,
+    //     });
+    //
+    //     this.trafficLightsUILayer.add(textNode);
+    //     this.trafficLightsUILayer.draw();
+    //
+    //     textNode.on('click', () => {
+    //
+    //         let textPosition = textNode.getAbsolutePosition();
+    //
+    //         let  stagebox = this.stage.container().getBoundingClientRect();
+    //
+    //         let areaPosition = {
+    //             x: stagebox.left + textPosition.x,
+    //             y: stagebox.top + textPosition.y,
+    //         };
+    //
+    //         let textArea = document.createElement('textarea');
+    //         document.body.appendChild(textArea);
+    //
+    //         textArea.value = textNode.text();
+    //         textArea.style.position = 'absolute';
+    //         textArea.style.backgroundColor = 'lightgray'
+    //         textArea.style.top = areaPosition.y + 'px';
+    //         textArea.style.left = areaPosition.x + 'px';
+    //         textArea.style.width = String(textNode.width());
+    //
+    //         textArea.focus();
+    //
+    //         textArea.addEventListener('keydown', (e) => {
+    //             if(e.keyCode === 13) {
+    //                 textNode.text(textArea.value);
+    //                 this.trafficLightsUILayer.draw();
+    //                 document.body.removeChild(textArea);
+    //             }
+    //         });
+    //     });
+    //     return textNode
+    // }
 
     pointTransformer(p: Point): Point {
         let ret = new Point(p.Lon, p.Lat)
