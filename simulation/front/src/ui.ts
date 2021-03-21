@@ -1,8 +1,8 @@
 import Konva from 'konva'
 import Stage from 'konva'
-import { Layer } from 'konva/types/Layer';
-import { Circle } from 'konva/types/shapes/Circle';
-import App, {WsBounds, WsMessageNode, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
+import {Layer} from 'konva/types/Layer';
+import {Circle} from 'konva/types/shapes/Circle';
+import App, {WsBounds, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
 
 export class AppUI {
@@ -22,9 +22,13 @@ export class AppUI {
         })
 
         this.mapLayer = new Konva.Layer()
-        this.trafficLightsUILayer = new  Konva.Layer()
+        this.trafficLightsUILayer = new Konva.Layer()
+        this.trafficLightsUILayer.hide()
+
+        this.drawButtons()
 
         this.stage.add(this.mapLayer)
+        this.stage.add(this.trafficLightsUILayer)
 
 
         app.boundsListener.attach((bounds: WsBounds) => {
@@ -37,7 +41,7 @@ export class AppUI {
         app.trafficLightsGroupsListener.attach((this.drawTrafficLights).bind(this))
     }
 
-    drawWays(ways: WsMessageWay[]){
+    drawWays(ways: WsMessageWay[]) {
         let lines: Konva.Line[] = []
         for (const way of ways) {
             //TODO: Draw lines
@@ -58,7 +62,7 @@ export class AppUI {
 
             line.addEventListener("click", (e: Event) => {
                 console.log("way", way)
-            } )
+            })
         }
 
         this.mapLayer.batchDraw()
@@ -77,26 +81,25 @@ export class AppUI {
                 strokeWidth: 2,
             })
 
-            nodeCircle.on('dblclick', () => {
-                this.drawButtons()
+            nodeCircle.on('click', () => {
                 this.trafficLightsUILayer.show()
+                this.trafficLightsUILayer.draw()
+                this.stage.draw()
             })
 
             this.mapLayer.add(nodeCircle)
 
 
-
             nodeCircle.draw()
-
 
 
             for (const node of trafficLightsGroup.TrafficLights) {
                 let coords = this.pointTransformer(node.Node)
 
-                let diffSeconds = (new Date()).getTime() - (new Date(node.LastGreen)).getTime()/1000
+                let diffSeconds = (new Date()).getTime() - (new Date(node.LastGreen)).getTime() / 1000
                 // if (diffSeconds > 3)
                 //     console.log(diffSeconds)
-                diffSeconds = diffSeconds%(node.RedDurationSeconds + node.RedDurationSeconds)
+                diffSeconds = diffSeconds % (node.RedDurationSeconds + node.RedDurationSeconds)
                 let fill = ''
                 let duration = 0
 
@@ -118,7 +121,6 @@ export class AppUI {
                 })
 
 
-
                 setTimeout(() => {
                     this.toggleTrafficLightFill(circle, node, this.mapLayer)
                 }, duration * 1000)
@@ -133,10 +135,9 @@ export class AppUI {
     }
 
 
-    drawButtons(){
-
-        this.stage.add(this.trafficLightsUILayer);
-
+    drawButtons() {
+        // @ts-ignore
+        // @ts-ignore
         let border = new Konva.Rect({
             width: 300,
             height: 250,
@@ -151,18 +152,33 @@ export class AppUI {
         })
 
         this.trafficLightsUILayer.add(border)
-        this.createButtons('Set Green Light Duration', 20, 20);
-        this.createButtons( 'Set Red Light Duration', 20, 70);
-        this.createButtons('Entrust AI', 20, 120);
-        this.createButtons('Exit', 20, 170);
+        let setGreenDur = this.createButtons('Set Green Light Duration', 20, 20);
+        let setRedDur = this.createButtons('Set Red Light Duration', 20, 70);
+        let entrustAI = this.createButtons('Entrust AI', 20, 120);
+        let exit = this.createButtons('Exit', 20, 170);
 
+
+
+        exit.on('click', () => {
+            this.trafficLightsUILayer.hide()
+        })
+
+        setGreenDur.on('click', () => {
+            alert('clicked on setGreenDur button');
+        })
+
+        setRedDur.on('click', (event) => {
+            alert('clicked on setRedDur button');
+        })
+
+        entrustAI.on('click', () => {
+            alert('clicked on entrust AI button');
+        })
 
         this.trafficLightsUILayer.draw()
-
-
     }
 
-    createButtons(name: string, x: number, y: number) {
+    createButtons(name: string, x: number, y: number): Konva.Label {
 
         let button = new Konva.Label({
             x: x,
@@ -171,7 +187,7 @@ export class AppUI {
         });
 
 
-            this.trafficLightsUILayer.add(button);
+        this.trafficLightsUILayer.add(button);
 
 
         button.add(new Konva.Tag({
@@ -192,22 +208,9 @@ export class AppUI {
             fill: 'white'
         }));
 
+        this.trafficLightsUILayer.draw();
 
-        button.on('click', () => {
-
-            if(name == 'Exit') {
-
-                this.trafficLightsUILayer.hide()
-            }else{
-
-                alert('clicked on ' + name + ' button');
-
-            }
-        })
-
-
-            this.trafficLightsUILayer.draw();
-
+        return button
     }
 
     pointTransformer(p: Point): Point {
@@ -216,8 +219,8 @@ export class AppUI {
         ret.Lon -= this.bounds.MinLon
         ret.Lat -= this.bounds.MinLat
 
-        ret.Lon *= document.getElementById(this.mapContainerId).scrollWidth/(this.bounds.MaxLon-this.bounds.MinLon)
-        ret.Lat *= document.getElementById(this.mapContainerId).scrollHeight/(this.bounds.MaxLat-this.bounds.MinLat)
+        ret.Lon *= document.getElementById(this.mapContainerId).scrollWidth / (this.bounds.MaxLon - this.bounds.MinLon)
+        ret.Lat *= document.getElementById(this.mapContainerId).scrollHeight / (this.bounds.MaxLat - this.bounds.MinLat)
 
         ret.Lat = document.getElementById(this.mapContainerId).scrollHeight - ret.Lat
 
@@ -225,9 +228,8 @@ export class AppUI {
     }
 
 
-
     findTrafficLightsGroupCenter(t: WsTrafficLightsGroups): Point {
-        let p = new Point(0,0)
+        let p = new Point(0, 0)
 
         for (let trafficLight of t.TrafficLights) {
             p.Lon += trafficLight.Node.Lon
@@ -245,8 +247,7 @@ export class AppUI {
         if (circle.fill() == 'red') {
             circle.fill('green')
             duration = t.GreenDurationSeconds * 1000
-        }
-        else
+        } else
             circle.fill('red')
         l.batchDraw()
         setTimeout(() => this.toggleTrafficLightFill(circle, t, l), duration)
@@ -256,10 +257,9 @@ export class AppUI {
 class Point {
     Lon: number
     Lat: number
+
     constructor(lon: number, lat: number) {
         this.Lat = lat
         this.Lon = lon
     }
-
-
 }
