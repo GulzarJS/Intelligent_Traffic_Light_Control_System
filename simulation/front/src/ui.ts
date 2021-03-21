@@ -27,6 +27,7 @@ export class AppUI {
 
         this.setUpTrafficLightUILayer()
 
+
         this.stage.add(this.mapLayer)
         this.stage.add(this.trafficLightsUILayer)
 
@@ -137,7 +138,7 @@ export class AppUI {
 
     setUpTrafficLightUILayer() {
         let border = new Konva.Rect({
-            width: 300,
+            width: 400,
             height: 250,
             fill: 'gray',
             stroke: 'gray',
@@ -154,7 +155,7 @@ export class AppUI {
         let setRedDur = this.createButtons('Set Red Light Duration', 20, 70);
         let entrustAI = this.createButtons('Entrust AI', 20, 120);
         let exit = this.createButtons('Exit', 20, 170);
-
+        let textfield = this.createTextField('hello', 300, 20);
 
 
         exit.on('click', () => {
@@ -209,6 +210,52 @@ export class AppUI {
         this.trafficLightsUILayer.draw();
 
         return button
+    }
+
+    createTextField(name: string, x: number, y: number): Konva.Text {
+
+        let textNode = new Konva.Text({
+            text: 'Some text here',
+            x: x,
+            y: y,
+            fontSize: 20,
+        });
+
+        this.trafficLightsUILayer.add(textNode);
+        this.trafficLightsUILayer.draw();
+
+        textNode.on('click', () => {
+
+            let textPosition = textNode.getAbsolutePosition();
+
+            let  stagebox = this.stage.container().getBoundingClientRect();
+
+            let areaPosition = {
+                x: stagebox.left + textPosition.x,
+                y: stagebox.top + textPosition.y,
+            };
+
+            let textArea = document.createElement('textarea');
+            document.body.appendChild(textArea);
+
+            textArea.value = textNode.text();
+            textArea.style.position = 'absolute';
+            textArea.style.backgroundColor = 'lightgray'
+            textArea.style.top = areaPosition.y + 'px';
+            textArea.style.left = areaPosition.x + 'px';
+            textArea.style.width = String(textNode.width());
+
+            textArea.focus();
+
+            textArea.addEventListener('keydown', (e) => {
+                if(e.keyCode === 13) {
+                    textNode.text(textArea.value);
+                    this.trafficLightsUILayer.draw();
+                    document.body.removeChild(textArea);
+                }
+            });
+        });
+        return textNode
     }
 
     pointTransformer(p: Point): Point {
