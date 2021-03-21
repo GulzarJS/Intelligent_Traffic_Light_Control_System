@@ -158,7 +158,6 @@ export class AppUI {
         let textfield = this.createTextField('hello', 300, 20);
 
 
-
         exit.on('click', () => {
             this.trafficLightsUILayer.hide()
         })
