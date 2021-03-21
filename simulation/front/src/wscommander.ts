@@ -18,4 +18,12 @@ export default class WsCommander {
     public getTrafficLightsGroups() {
         this.ws.send("/getTrafficLightsGroups")
     }
+
+    public setGreenLightDuration() {
+        this.ws.send("/setGreenLightDuration")
+    }
+
+    public setRedLightDuration() {
+        this.ws.send("/setRedLightDuration")
+    }
 }
