@@ -24,6 +24,7 @@ export class AppUI {
 
         this.mapLayer = new Konva.Layer()
 
+        this.trafficLightsUILayer = new ButtonUI(this.stage, 48, 52)
 
 
         this.stage.add(this.mapLayer)
@@ -115,7 +116,6 @@ export class AppUI {
                 })
 
             nodeCircle.on('click', () => {
-                this.trafficLightsUILayer = new ButtonUI(this.stage, 48, 52)
                 // this.trafficLightsUILayer.setGreenLightDuration(48)
                 // this.trafficLightsUILayer.setRedLightDuration(52)
                 this.trafficLightsUILayer.showLayer()
