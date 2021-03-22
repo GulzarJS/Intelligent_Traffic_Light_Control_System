@@ -7,9 +7,11 @@ export class ButtonUI{
 
     public stage: Stage.Stage
     public layer: Stage.Layer
-    public ui: AppUI
 
-    constructor(stage: Stage.Stage){
+    public greenLightDuration: number
+    public redLightDuration: number
+
+    constructor(stage: Stage.Stage, greenLightDuration: number, redLightDuration: number ){
 
         this.stage = stage
 
@@ -19,11 +21,16 @@ export class ButtonUI{
 
         this.layer.hide()
 
+        this.greenLightDuration = greenLightDuration
+        this.redLightDuration = redLightDuration
+
         this.setupLayer()
 
     }
 
     setupLayer(){
+
+        // this.clearLayer();
 
         let border = new Konva.Rect({
             width: 400,
@@ -43,8 +50,9 @@ export class ButtonUI{
         let setRedDur = this.createButtons('Red Light Duration', 20, 70);
         let entrustAI = this.createButtons('Entrust AI', 20, 120);
         let exit = this.createButtons('Exit', 20, 170);
-        let gLDuration = this.createTextField("40", 260,30)
-        let rLDuration = this.createTextField("40", 260,80)
+        let submit = this.createButtons('Submit', 300, 170);
+        let gLDuration = this.createTextField(String(this.greenLightDuration), 260,30, this.greenLightDuration)
+        let rLDuration = this.createTextField(String(this.redLightDuration), 260,80, this.redLightDuration)
 
 
         exit.on('click', () => {
@@ -63,8 +71,14 @@ export class ButtonUI{
             alert('clicked on entrust AI button');
         })
 
+        submit.on('click', () => {
+            alert('clicked on Submit button');
+        })
+
+
         this.layer.draw()
     }
+
 
     createButtons(name: string, x: number, y: number): Konva.Label {
 
@@ -102,7 +116,7 @@ export class ButtonUI{
     }
 
 
-    createTextField(text: string, x: number, y: number): Konva.Text {
+    createTextField(text: string, x: number, y: number, duration: number): Konva.Text {
 
         let textNode = new Konva.Text({
             text: text,
@@ -113,6 +127,7 @@ export class ButtonUI{
 
         this.layer.add(textNode);
         this.layer.draw();
+
 
         textNode.on('click', () => {
 
@@ -135,20 +150,29 @@ export class ButtonUI{
             textArea.style.left = areaPosition.x + 'px';
             // textArea.style.width = String(textNode.width());
             textArea.style.fontSize = String(textNode.fontSize());
-            textArea.style.width = textNode.width() - textNode.padding() * 2 + 'px';
+            textArea.style.width = textNode.width() - textNode.padding() * 2 + 30 + 'px';
 
 
             textArea.focus();
 
             textArea.addEventListener('keydown', (e) => {
-                if(e.keyCode === 13) {
+                if(e.key === 'Enter') {
                     textNode.text(textArea.value);
+                    duration = Number(textArea.value)
+                    console.log(duration);
                     this.layer.draw();
                     document.body.removeChild(textArea);
                 }
             });
         });
+
+
         return textNode
+    }
+
+    clearLayer(){
+        this.layer.remove();
+        this.layer = new Konva.Layer();
     }
 
     showLayer(){
@@ -161,6 +185,19 @@ export class ButtonUI{
 
     drawLayer(){
         this.layer.draw()
+    }
+
+    setGreenLightDuration(duration: number){
+        this.greenLightDuration = duration
+        // this.setupLayer()
+        this.layer.draw();
+    }
+
+    setRedLightDuration(duration: number){
+        this.redLightDuration = duration
+        // this.setupLayer()
+        this.layer.draw();
+
     }
 
 }

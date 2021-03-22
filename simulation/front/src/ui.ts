@@ -23,7 +23,7 @@ export class AppUI {
         })
 
         this.mapLayer = new Konva.Layer()
-        this.trafficLightsUILayer = new ButtonUI(this.stage)
+
 
 
         this.stage.add(this.mapLayer)
@@ -80,11 +80,6 @@ export class AppUI {
                 strokeWidth: 2,
             })
 
-            nodeCircle.on('click', () => {
-                this.trafficLightsUILayer.showLayer()
-                this.trafficLightsUILayer.drawLayer()
-                this.stage.draw()
-            })
 
             this.mapLayer.add(nodeCircle)
 
@@ -119,6 +114,14 @@ export class AppUI {
                     fill: fill
                 })
 
+            nodeCircle.on('click', () => {
+                this.trafficLightsUILayer = new ButtonUI(this.stage, 48, 52)
+                // this.trafficLightsUILayer.setGreenLightDuration(48)
+                // this.trafficLightsUILayer.setRedLightDuration(52)
+                this.trafficLightsUILayer.showLayer()
+                // this.trafficLightsUILayer.drawLayer()
+                this.stage.draw()
+            })
 
                 setTimeout(() => {
                     this.toggleTrafficLightFill(circle, node, this.mapLayer)
