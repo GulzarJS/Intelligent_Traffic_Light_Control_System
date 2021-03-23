@@ -4,22 +4,27 @@ import {Layer} from 'konva/types/Layer';
 import {Circle} from 'konva/types/shapes/Circle';
 import App, {WsBounds, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
+import {TrafficLightUILayer} from "./trafficlightuilayer";
+import {CarsUILayer} from "./carsuilayer";
+import {CarsSpawnLayer} from "./carsspawnlayer";
 
 export class AppUI {
     public stage: Stage.Stage
     public mapLayer: Stage.Layer
-    private trafficLightsUILayer: Stage.Layer
-    private carsUILayer: Stage.Layer
-    private carsSpawnLayer: Stage.Layer
+
+    private trafficLightUILayer: TrafficLightUILayer
+    private carsUILayer: CarsUILayer
+    private carsSpawnLayer: CarsSpawnLayer
+
     private wsCommander: WsCommander
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
     private lastClickedWay: WsMessageWay
     private app: App
     private wedgeWayDict: IWedgeWay[]
+    public lastClickedTrafficLight: WsTrafficLight
 
     constructor(wsCommander: WsCommander, app: App) {
-        this.app = app
         this.wsCommander = wsCommander
         this.stage = new Konva.Stage({
             container: this.mapContainerId,
@@ -28,20 +33,13 @@ export class AppUI {
         })
 
         this.mapLayer = new Konva.Layer()
-        this.trafficLightsUILayer = new Konva.Layer()
-        this.carsUILayer = new Konva.Layer()
-        this.carsSpawnLayer = new Konva.Layer()
 
-        this.trafficLightsUILayer.hide()
-        this.carsUILayer.hide()
+        this.trafficLightUILayer = new TrafficLightUILayer(this)
+        this.carsUILayer = new CarsUILayer(this)
+        this.carsSpawnLayer = new CarsSpawnLayer(this)
 
-        this.setUpTrafficLightUILayer()
-        this.setUpCarsUILayer()
 
         this.stage.add(this.mapLayer)
-        this.stage.add(this.trafficLightsUILayer)
-        this.stage.add(this.carsUILayer)
-        this.stage.add(this.carsSpawnLayer)
 
 
         app.boundsListener.attach((bounds: WsBounds) => {
@@ -75,8 +73,8 @@ export class AppUI {
 
             line.addEventListener("click", (e: Event) => {
                 this.lastClickedWay = way
-                this.carsUILayer.show()
-                this.carsUILayer.draw()
+                this.carsUILayer.showLayer()
+                this.carsUILayer.drawLayer()
                 this.stage.draw()
             })
         }
@@ -95,11 +93,6 @@ export class AppUI {
                 strokeWidth: 2,
             })
 
-            nodeCircle.on('click', () => {
-                this.trafficLightsUILayer.show()
-                this.trafficLightsUILayer.draw()
-                this.stage.draw()
-            })
 
             this.mapLayer.add(nodeCircle)
 
@@ -132,6 +125,12 @@ export class AppUI {
                     fill: fill
                 })
 
+                nodeCircle.on('click', () => {
+
+                    this.trafficLightUILayer.showLayer()
+
+                    this.stage.draw()
+                })
 
                 setTimeout(() => {
                     this.toggleTrafficLightFill(circle, node, this.mapLayer)
@@ -146,35 +145,6 @@ export class AppUI {
         this.mapLayer.batchDraw()
     }
 
-    createButtons(name: string, x: number, y: number): Konva.Label {
-
-        let button = new Konva.Label({
-            x: x,
-            y: y,
-            opacity: 0.75
-        });
-
-
-        button.add(new Konva.Tag({
-            fill: 'black',
-            lineJoin: 'round',
-            shadowColor: 'black',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        }));
-
-
-        button.add(new Konva.Text({
-            text: name,
-            fontFamily: 'Calibri',
-            fontSize: 24,
-            padding: 5,
-            fill: 'white'
-        }));
-
-        return button
-    }
 
     pointTransformer(p: Point): Point {
         let ret = new Point(p.Lon, p.Lat)
@@ -216,82 +186,8 @@ export class AppUI {
         setTimeout(() => this.toggleTrafficLightFill(circle, t, l), duration)
     }
 
-    setUpCarsUILayer() {
-        let border = new Konva.Rect({
-            width: 300,
-            height: 250,
-            fill: 'gray',
-            stroke: 'gray',
-            strokeWidth: 4,
-            draggable: true,
-            shadowColor: 'gray',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        })
 
-        this.carsUILayer.add(border)
-        let spawner = this.createButtons('Set as car spawner', 20, 20);
-        let despawner = this.createButtons('Set as car despawner', 20, 70);
-        let exit = this.createButtons('Exit', 20, 170);
 
-        this.carsUILayer.add(spawner, despawner, exit)
-
-        exit.on('click', () => {
-            this.carsUILayer.hide()
-        })
-
-        spawner.on('click', () => {
-            this.spawnCar()
-        })
-
-        despawner.on('click', (event) => {
-            this.despawnCar()
-        })
-
-        this.carsUILayer.draw()
-    }
-
-    setUpTrafficLightUILayer() {
-        let border = new Konva.Rect({
-            width: 300,
-            height: 250,
-            fill: 'gray',
-            stroke: 'gray',
-            strokeWidth: 4,
-            draggable: true,
-            shadowColor: 'gray',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        })
-
-        this.trafficLightsUILayer.add(border)
-        let setGreenDur = this.createButtons('Set Green Light Duration', 20, 20);
-        let setRedDur = this.createButtons('Set Red Light Duration', 20, 70);
-        let entrustAI = this.createButtons('Entrust AI', 20, 120);
-        let exit = this.createButtons('Exit', 20, 170);
-
-        this.trafficLightsUILayer.add(setGreenDur, setRedDur, entrustAI, exit)
-
-        exit.on('click', () => {
-            this.trafficLightsUILayer.hide()
-        })
-
-        setGreenDur.on('click', () => {
-            alert('clicked on setGreenDur button');
-        })
-
-        setRedDur.on('click', (event) => {
-            alert('clicked on setRedDur button');
-        })
-
-        entrustAI.on('click', () => {
-            alert('clicked on entrust AI button');
-        })
-
-        this.trafficLightsUILayer.draw()
-    }
 
     spawnCar() {
         let wedgeCoords = this.pointTransformer(this.lastClickedWay.Node1)
@@ -312,7 +208,7 @@ export class AppUI {
                 }
             }
             wedge.remove()
-            this.carsSpawnLayer.draw()
+            this.carsSpawnLayer.drawLayer()
         })
 
         // TODO: Add backend spawn point sending or store it somewhere for sending all by batch
@@ -321,8 +217,8 @@ export class AppUI {
 
         this.wedgeWayDict.push({wedge: wedge, way: this.lastClickedWay})
         this.app.spawnPoints.push(this.lastClickedWay)
-        this.carsSpawnLayer.add(wedge)
-        this.carsSpawnLayer.draw()
+        this.carsSpawnLayer.getlayer().add(wedge)
+        this.carsSpawnLayer.drawLayer()
     }
 
     despawnCar() {
@@ -338,17 +234,18 @@ export class AppUI {
 
         wedge.addEventListener('click', (e) => {
             wedge.remove()
-            this.carsSpawnLayer.draw()
+            this.carsSpawnLayer.drawLayer()
         })
 
         // TODO: Add backend spawn point sending or store it somewhere for sending all by batch
         // TODO: Add a play button or smth when there is at least one spawner AND one despawner
         // TODO: Don't let two (de)spawners overlap each other
 
-        this.carsSpawnLayer.add(wedge)
-        this.carsSpawnLayer.draw()
+        this.carsSpawnLayer.getlayer().add(wedge)
+        this.carsSpawnLayer.drawLayer()
     }
 }
+
 
 class Point {
     Lon: number
