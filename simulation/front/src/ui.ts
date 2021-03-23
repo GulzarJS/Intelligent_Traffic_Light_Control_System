@@ -4,6 +4,7 @@ import {Layer} from 'konva/types/Layer';
 import {Circle} from 'konva/types/shapes/Circle';
 import App, {WsBounds, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
+import {ButtonUI} from "./buttons";
 
 export class AppUI {
     public stage: Stage.Stage
@@ -11,6 +12,7 @@ export class AppUI {
     private trafficLightsUILayer: Stage.Layer
     private carsUILayer: Stage.Layer
     private carsSpawnLayer: Stage.Layer
+    public trafficLightsUILayer: ButtonUI
     private wsCommander: WsCommander
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
@@ -32,10 +34,13 @@ export class AppUI {
         this.trafficLightsUILayer.hide()
         this.carsUILayer.hide()
 
+        this.trafficLightsUILayer = new ButtonUI(this.stage, 48, 52)
+
         this.setUpTrafficLightUILayer()
         this.setUpCarsUILayer()
 
         this.stage.add(this.mapLayer)
+
         this.stage.add(this.trafficLightsUILayer)
         this.stage.add(this.carsUILayer)
         this.stage.add(this.carsSpawnLayer)
@@ -92,11 +97,6 @@ export class AppUI {
                 strokeWidth: 2,
             })
 
-            nodeCircle.on('click', () => {
-                this.trafficLightsUILayer.show()
-                this.trafficLightsUILayer.draw()
-                this.stage.draw()
-            })
 
             this.mapLayer.add(nodeCircle)
 
@@ -129,6 +129,13 @@ export class AppUI {
                     fill: fill
                 })
 
+            nodeCircle.on('click', () => {
+                // this.trafficLightsUILayer.setGreenLightDuration(48)
+                // this.trafficLightsUILayer.setRedLightDuration(52)
+                this.trafficLightsUILayer.showLayer()
+                // this.trafficLightsUILayer.drawLayer()
+                this.stage.draw()
+            })
 
                 setTimeout(() => {
                     this.toggleTrafficLightFill(circle, node, this.mapLayer)
@@ -143,35 +150,8 @@ export class AppUI {
         this.mapLayer.batchDraw()
     }
 
-    createButtons(name: string, x: number, y: number): Konva.Label {
-
-        let button = new Konva.Label({
-            x: x,
-            y: y,
-            opacity: 0.75
-        });
 
 
-        button.add(new Konva.Tag({
-            fill: 'black',
-            lineJoin: 'round',
-            shadowColor: 'black',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        }));
-
-
-        button.add(new Konva.Text({
-            text: name,
-            fontFamily: 'Calibri',
-            fontSize: 24,
-            padding: 5,
-            fill: 'white'
-        }));
-
-        return button
-    }
 
     pointTransformer(p: Point): Point {
         let ret = new Point(p.Lon, p.Lat)
