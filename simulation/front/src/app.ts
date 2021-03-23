@@ -9,6 +9,7 @@ export default class App {
     public boundsListener: AsyncEvent<WsBounds>
     public waysListener: AsyncEvent<WsMessageWay[]>
     public trafficLightsGroupsListener: AsyncEvent<WsTrafficLightsGroups[]>
+    public spawnPoints: WsMessageWay[]
 
     constructor(ws: WebSocket, wsCommander: WsCommander) {
         this.ws = ws
