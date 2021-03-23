@@ -4,7 +4,7 @@ import {Layer} from 'konva/types/Layer';
 import {Circle} from 'konva/types/shapes/Circle';
 import App, {WsBounds, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
-import {SubLayers} from "./buttons";
+import {SubLayers} from "./sublayers";
 
 export class AppUI {
     public stage: Stage.Stage
@@ -34,13 +34,9 @@ export class AppUI {
 
         this.carsUILayer.hide()
 
-
-        this.setUpTrafficLightUILayer()
         this.setUpCarsUILayer()
 
         this.stage.add(this.mapLayer)
-
-        this.stage.add(this.trafficLightsUILayer)
         this.stage.add(this.carsUILayer)
         this.stage.add(this.carsSpawnLayer)
 
@@ -228,46 +224,7 @@ export class AppUI {
         this.carsUILayer.draw()
     }
 
-    setUpTrafficLightUILayer() {
-        let border = new Konva.Rect({
-            width: 300,
-            height: 250,
-            fill: 'gray',
-            stroke: 'gray',
-            strokeWidth: 4,
-            draggable: true,
-            shadowColor: 'gray',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        })
 
-        this.trafficLightsUILayer.add(border)
-        let setGreenDur = this.sublayers.createButtons('Set Green Light Duration', 20, 20);
-        let setRedDur = this.sublayers.createButtons('Set Red Light Duration', 20, 70);
-        let entrustAI = this.sublayers.createButtons('Entrust AI', 20, 120);
-        let exit = this.sublayers.createButtons('Exit', 20, 170);
-
-        this.trafficLightsUILayer.add(setGreenDur, setRedDur, entrustAI, exit)
-
-        exit.on('click', () => {
-            this.trafficLightsUILayer.hide()
-        })
-
-        setGreenDur.on('click', () => {
-            alert('clicked on setGreenDur button');
-        })
-
-        setRedDur.on('click', (event) => {
-            alert('clicked on setRedDur button');
-        })
-
-        entrustAI.on('click', () => {
-            alert('clicked on entrust AI button');
-        })
-
-        this.trafficLightsUILayer.draw()
-    }
 
     spawnCar() {
         let wedgeCoords = this.pointTransformer(this.lastClickedWay.Node1)
