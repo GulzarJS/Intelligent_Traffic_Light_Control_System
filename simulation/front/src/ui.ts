@@ -9,8 +9,8 @@ import {SubLayers} from "./sublayers";
 export class AppUI {
     public stage: Stage.Stage
     public mapLayer: Stage.Layer
-    private carsUILayer: Stage.Layer
-    private carsSpawnLayer: Stage.Layer
+    // private carsUILayer: Stage.Layer
+    // private carsSpawnLayer: Stage.Layer
     private sublayers: SubLayers
     // private trafficLightsUILayer: Stage.Layer
     private wsCommander: WsCommander
@@ -26,19 +26,20 @@ export class AppUI {
             height: document.getElementById(this.mapContainerId).scrollHeight
         })
 
-        this.sublayers = new  SubLayers(this.stage)
+        this.sublayers = new  SubLayers(this)
         this.mapLayer = new Konva.Layer()
+
         // this.trafficLightsUILayer = this.sublayers.trafficLightsUILayer
-        this.carsUILayer = new Konva.Layer()
-        this.carsSpawnLayer = new Konva.Layer()
+        // this.carsUILayer = new Konva.Layer()
+        // this.carsSpawnLayer = new Konva.Layer()
 
-        this.carsUILayer.hide()
+        // this.carsUILayer.hide()
 
-        this.setUpCarsUILayer()
+        // this.setUpCarsUILayer()
 
         this.stage.add(this.mapLayer)
-        this.stage.add(this.carsUILayer)
-        this.stage.add(this.carsSpawnLayer)
+        // this.stage.add(this.carsUILayer)
+        // this.stage.add(this.carsSpawnLayer)
 
 
         app.boundsListener.attach((bounds: WsBounds) => {
@@ -72,8 +73,8 @@ export class AppUI {
 
             line.addEventListener("click", (e: Event) => {
                 this.lastClickedWay = way
-                this.carsUILayer.show()
-                this.carsUILayer.draw()
+                this.sublayers.carsUILayer.show()
+                this.sublayers.carsUILayer.draw()
                 this.stage.draw()
             })
         }
@@ -187,45 +188,45 @@ export class AppUI {
         l.batchDraw()
         setTimeout(() => this.toggleTrafficLightFill(circle, t, l), duration)
     }
-
-    setUpCarsUILayer() {
-        let border = new Konva.Rect({
-            x: 5,
-            y: 280,
-            width: 400,
-            height: 250,
-            fill: 'gray',
-            stroke: 'gray',
-            strokeWidth: 4,
-            draggable: true,
-            shadowColor: 'gray',
-            shadowBlur: 10,
-            // shadowOffset: 10,
-            shadowOpacity: 0.5
-        })
-
-        this.carsUILayer.add(border)
-        let spawner = this.sublayers.createButtons('Set as car spawner', 20, 300);
-        let despawner = this.sublayers.createButtons('Set as car despawner', 20, 350);
-        let exit = this.sublayers.createButtons('Exit', 20, 450);
-
-        this.carsUILayer.add(spawner, despawner, exit)
-
-        exit.on('click', () => {
-            this.carsUILayer.hide()
-        })
-
-        spawner.on('click', () => {
-            this.spawnCar()
-        })
-
-        despawner.on('click', (event) => {
-            this.despawnCar()
-        })
-
-        this.carsUILayer.draw()
-    }
-
+    //
+    // setUpCarsUILayer() {
+    //     let border = new Konva.Rect({
+    //         x: 5,
+    //         y: 280,
+    //         width: 400,
+    //         height: 250,
+    //         fill: 'gray',
+    //         stroke: 'gray',
+    //         strokeWidth: 4,
+    //         draggable: true,
+    //         shadowColor: 'gray',
+    //         shadowBlur: 10,
+    //         // shadowOffset: 10,
+    //         shadowOpacity: 0.5
+    //     })
+    //
+    //     this.carsUILayer.add(border)
+    //     let spawner = this.sublayers.createButtons('Set as car spawner', 20, 300);
+    //     let despawner = this.sublayers.createButtons('Set as car despawner', 20, 350);
+    //     let exit = this.sublayers.createButtons('Exit', 20, 450);
+    //
+    //     this.carsUILayer.add(spawner, despawner, exit)
+    //
+    //     exit.on('click', () => {
+    //         this.carsUILayer.hide()
+    //     })
+    //
+    //     spawner.on('click', () => {
+    //         this.spawnCar()
+    //     })
+    //
+    //     despawner.on('click', (event) => {
+    //         this.despawnCar()
+    //     })
+    //
+    //     this.carsUILayer.draw()
+    // }
+    //
 
 
     spawnCar() {
@@ -241,15 +242,15 @@ export class AppUI {
 
         wedge.addEventListener('click', (e) => {
             wedge.remove()
-            this.carsSpawnLayer.draw()
+            this.sublayers.carsSpawnLayer.draw()
         })
 
         // TODO: Add backend spawn point sending or store it somewhere for sending all by batch
         // TODO: Add a play button or smth when there is at least one spawner AND one despawner
         // TODO: Don't let two (de)spawners overlap each other
 
-        this.carsSpawnLayer.add(wedge)
-        this.carsSpawnLayer.draw()
+        this.sublayers.carsSpawnLayer.add(wedge)
+        this.sublayers.carsSpawnLayer.draw()
     }
 
     despawnCar() {
@@ -265,15 +266,15 @@ export class AppUI {
 
         wedge.addEventListener('click', (e) => {
             wedge.remove()
-            this.carsSpawnLayer.draw()
+            this.sublayers.carsSpawnLayer.draw()
         })
 
         // TODO: Add backend spawn point sending or store it somewhere for sending all by batch
         // TODO: Add a play button or smth when there is at least one spawner AND one despawner
         // TODO: Don't let two (de)spawners overlap each other
 
-        this.carsSpawnLayer.add(wedge)
-        this.carsSpawnLayer.draw()
+        this.sublayers.carsSpawnLayer.add(wedge)
+        this.sublayers.carsSpawnLayer.draw()
     }
 }
 

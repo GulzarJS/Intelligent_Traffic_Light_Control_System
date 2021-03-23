@@ -5,26 +5,37 @@ import {AppUI} from "./ui";
 
 export class SubLayers {
 
+    public ui: AppUI
     public stage: Stage.Stage
     public trafficLightsUILayer: Stage.Layer
+    public carsUILayer: Stage.Layer
+    public carsSpawnLayer: Stage.Layer
 
     public greenLightDuration: number
     public redLightDuration: number
 
-    constructor(stage: Stage.Stage){
+    constructor(ui: AppUI){
 
-        this.stage = stage
+        this.ui = ui
+        this.stage = ui.stage
 
         this.trafficLightsUILayer = new Konva.Layer()
+        this.carsUILayer = new Konva.Layer()
+        this.carsSpawnLayer = new Konva.Layer()
+
 
         this.stage.add(this.trafficLightsUILayer)
+        this.stage.add(this.carsUILayer)
+        this.stage.add(this.carsSpawnLayer)
 
         this.trafficLightsUILayer.hide()
+        this.carsUILayer.hide()
 
         this.greenLightDuration = 0;
         this.redLightDuration = 0;
 
         this.setupLayer()
+        this.setUpCarsUILayer()
 
     }
 
@@ -80,6 +91,46 @@ export class SubLayers {
 
         this.trafficLightsUILayer.draw()
     }
+
+
+    setUpCarsUILayer() {
+        let border = new Konva.Rect({
+            x: 5,
+            y: 280,
+            width: 400,
+            height: 250,
+            fill: 'gray',
+            stroke: 'gray',
+            strokeWidth: 4,
+            draggable: true,
+            shadowColor: 'gray',
+            shadowBlur: 10,
+            // shadowOffset: 10,
+            shadowOpacity: 0.5
+        })
+
+        this.carsUILayer.add(border)
+        let spawner = this.createButtons('Set as car spawner', 20, 300);
+        let despawner = this.createButtons('Set as car despawner', 20, 350);
+        let exit = this.createButtons('Exit', 20, 450);
+
+        this.carsUILayer.add(spawner, despawner, exit)
+
+        exit.on('click', () => {
+            this.carsUILayer.hide()
+        })
+
+        spawner.on('click', () => {
+            this.ui.spawnCar()
+        })
+
+        despawner.on('click', (event) => {
+            this.ui.despawnCar()
+        })
+
+        this.carsUILayer.draw()
+    }
+
 
 
     createButtons(name: string, x: number, y: number): Konva.Label {
