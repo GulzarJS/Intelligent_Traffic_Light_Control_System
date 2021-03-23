@@ -20,6 +20,8 @@ export class AppUI {
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
     private lastClickedWay: WsMessageWay
+    private app: App
+    private wedgeWayDict: IWedgeWay[]
     public lastClickedTrafficLight: WsTrafficLight
 
     constructor(wsCommander: WsCommander, app: App) {
@@ -199,6 +201,12 @@ export class AppUI {
         })
 
         wedge.addEventListener('click', (e) => {
+            for (const wedgeWay of this.wedgeWayDict) {
+                if (wedgeWay.wedge == wedge) {
+                    removeItemOnce(this.app.spawnPoints, wedgeWay.way)
+                    break
+                }
+            }
             wedge.remove()
             this.carsSpawnLayer.drawLayer()
         })
@@ -207,6 +215,8 @@ export class AppUI {
         // TODO: Add a play button or smth when there is at least one spawner AND one despawner
         // TODO: Don't let two (de)spawners overlap each other
 
+        this.wedgeWayDict.push({wedge: wedge, way: this.lastClickedWay})
+        this.app.spawnPoints.push(this.lastClickedWay)
         this.carsSpawnLayer.getlayer().add(wedge)
         this.carsSpawnLayer.drawLayer()
     }
@@ -245,4 +255,17 @@ class Point {
         this.Lat = lat
         this.Lon = lon
     }
+}
+
+interface IWedgeWay {
+    wedge: Konva.Wedge
+    way: WsMessageWay
+}
+
+function removeItemOnce<Type>(arr: Type[], value: Type) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+        arr.splice(index, 1);
+    }
+    return arr;
 }
