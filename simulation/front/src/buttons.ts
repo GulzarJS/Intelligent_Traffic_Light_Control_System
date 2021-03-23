@@ -3,26 +3,26 @@ import Stage from 'konva'
 
 import {AppUI} from "./ui";
 
-export class ButtonUI{
+export class SubLayers {
 
     public stage: Stage.Stage
-    public layer: Stage.Layer
+    public trafficLightsUILayer: Stage.Layer
 
     public greenLightDuration: number
     public redLightDuration: number
 
-    constructor(stage: Stage.Stage, greenLightDuration: number, redLightDuration: number ){
+    constructor(stage: Stage.Stage){
 
         this.stage = stage
 
-        this.layer = new Konva.Layer()
+        this.trafficLightsUILayer = new Konva.Layer()
 
-        this.stage.add(this.layer)
+        this.stage.add(this.trafficLightsUILayer)
 
-        this.layer.hide()
+        this.trafficLightsUILayer.hide()
 
-        this.greenLightDuration = greenLightDuration
-        this.redLightDuration = redLightDuration
+        this.greenLightDuration = 0;
+        this.redLightDuration = 0;
 
         this.setupLayer()
 
@@ -45,7 +45,7 @@ export class ButtonUI{
             shadowOpacity: 0.5
         })
 
-        this.layer.add(border)
+        this.trafficLightsUILayer.add(border)
         let setGreenDur = this.createButtons('Green Light Duration', 20, 20);
         let setRedDur = this.createButtons('Red Light Duration', 20, 70);
         let entrustAI = this.createButtons('Entrust AI', 20, 120);
@@ -56,7 +56,7 @@ export class ButtonUI{
 
 
         exit.on('click', () => {
-            this.layer.hide()
+            this.trafficLightsUILayer.hide()
         })
 
         setGreenDur.on('click', () => {
@@ -76,7 +76,7 @@ export class ButtonUI{
         })
 
 
-        this.layer.draw()
+        this.trafficLightsUILayer.draw()
     }
 
 
@@ -89,7 +89,7 @@ export class ButtonUI{
         });
 
 
-        this.layer.add(button);
+        this.trafficLightsUILayer.add(button);
 
 
         button.add(new Konva.Tag({
@@ -110,7 +110,7 @@ export class ButtonUI{
             fill: 'white'
         }));
 
-        this.layer.draw();
+        this.trafficLightsUILayer.draw();
 
         return button
     }
@@ -125,8 +125,8 @@ export class ButtonUI{
             fontSize: 24,
         });
 
-        this.layer.add(textNode);
-        this.layer.draw();
+        this.trafficLightsUILayer.add(textNode);
+        this.trafficLightsUILayer.draw();
 
 
         textNode.on('click', () => {
@@ -160,7 +160,7 @@ export class ButtonUI{
                     textNode.text(textArea.value);
                     duration = Number(textArea.value)
                     console.log(duration);
-                    this.layer.draw();
+                    this.trafficLightsUILayer.draw();
                     document.body.removeChild(textArea);
                 }
             });
@@ -171,32 +171,32 @@ export class ButtonUI{
     }
 
     clearLayer(){
-        this.layer.remove();
-        this.layer = new Konva.Layer();
+        this.trafficLightsUILayer.remove();
+        this.trafficLightsUILayer = new Konva.Layer();
     }
 
     showLayer(){
-        this.layer.show()
+        this.trafficLightsUILayer.show()
     }
 
     hideLayer(){
-        this.layer.hide()
+        this.trafficLightsUILayer.hide()
     }
 
     drawLayer(){
-        this.layer.draw()
+        this.trafficLightsUILayer.draw()
     }
 
     setGreenLightDuration(duration: number){
         this.greenLightDuration = duration
         // this.setupLayer()
-        this.layer.draw();
+        this.trafficLightsUILayer.draw();
     }
 
     setRedLightDuration(duration: number){
         this.redLightDuration = duration
         // this.setupLayer()
-        this.layer.draw();
+        this.trafficLightsUILayer.draw();
 
     }
 

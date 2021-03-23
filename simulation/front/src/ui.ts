@@ -4,15 +4,15 @@ import {Layer} from 'konva/types/Layer';
 import {Circle} from 'konva/types/shapes/Circle';
 import App, {WsBounds, WsMessageWay, WsTrafficLight, WsTrafficLightsGroups} from "./app";
 import WsCommander from "./wscommander";
-import {ButtonUI} from "./buttons";
+import {SubLayers} from "./buttons";
 
 export class AppUI {
     public stage: Stage.Stage
     public mapLayer: Stage.Layer
-    private trafficLightsUILayer: Stage.Layer
     private carsUILayer: Stage.Layer
     private carsSpawnLayer: Stage.Layer
-    public trafficLightsUILayer: ButtonUI
+    private sublayers: SubLayers
+    private trafficLightsUILayer: Stage.Layer
     private wsCommander: WsCommander
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
@@ -27,14 +27,13 @@ export class AppUI {
         })
 
         this.mapLayer = new Konva.Layer()
-        this.trafficLightsUILayer = new Konva.Layer()
+        this.trafficLightsUILayer = this.sublayers.trafficLightsUILayer
         this.carsUILayer = new Konva.Layer()
         this.carsSpawnLayer = new Konva.Layer()
 
-        this.trafficLightsUILayer.hide()
+
         this.carsUILayer.hide()
 
-        this.trafficLightsUILayer = new ButtonUI(this.stage, 48, 52)
 
         this.setUpTrafficLightUILayer()
         this.setUpCarsUILayer()
@@ -132,7 +131,7 @@ export class AppUI {
             nodeCircle.on('click', () => {
                 // this.trafficLightsUILayer.setGreenLightDuration(48)
                 // this.trafficLightsUILayer.setRedLightDuration(52)
-                this.trafficLightsUILayer.showLayer()
+                this.trafficLightsUILayer.show()
                 // this.trafficLightsUILayer.drawLayer()
                 this.stage.draw()
             })
@@ -208,9 +207,9 @@ export class AppUI {
         })
 
         this.carsUILayer.add(border)
-        let spawner = this.createButtons('Set as car spawner', 20, 20);
-        let despawner = this.createButtons('Set as car despawner', 20, 70);
-        let exit = this.createButtons('Exit', 20, 170);
+        let spawner = this.sublayers.createButtons('Set as car spawner', 20, 20);
+        let despawner = this.sublayers.createButtons('Set as car despawner', 20, 70);
+        let exit = this.sublayers.createButtons('Exit', 20, 170);
 
         this.carsUILayer.add(spawner, despawner, exit)
 
@@ -244,10 +243,10 @@ export class AppUI {
         })
 
         this.trafficLightsUILayer.add(border)
-        let setGreenDur = this.createButtons('Set Green Light Duration', 20, 20);
-        let setRedDur = this.createButtons('Set Red Light Duration', 20, 70);
-        let entrustAI = this.createButtons('Entrust AI', 20, 120);
-        let exit = this.createButtons('Exit', 20, 170);
+        let setGreenDur = this.sublayers.createButtons('Set Green Light Duration', 20, 20);
+        let setRedDur = this.sublayers.createButtons('Set Red Light Duration', 20, 70);
+        let entrustAI = this.sublayers.createButtons('Entrust AI', 20, 120);
+        let exit = this.sublayers.createButtons('Exit', 20, 170);
 
         this.trafficLightsUILayer.add(setGreenDur, setRedDur, entrustAI, exit)
 
