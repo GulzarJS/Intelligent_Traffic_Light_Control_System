@@ -12,7 +12,7 @@ export class AppUI {
     private carsUILayer: Stage.Layer
     private carsSpawnLayer: Stage.Layer
     private sublayers: SubLayers
-    private trafficLightsUILayer: Stage.Layer
+    // private trafficLightsUILayer: Stage.Layer
     private wsCommander: WsCommander
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
@@ -26,11 +26,11 @@ export class AppUI {
             height: document.getElementById(this.mapContainerId).scrollHeight
         })
 
+        this.sublayers = new  SubLayers(this.stage)
         this.mapLayer = new Konva.Layer()
-        this.trafficLightsUILayer = this.sublayers.trafficLightsUILayer
+        // this.trafficLightsUILayer = this.sublayers.trafficLightsUILayer
         this.carsUILayer = new Konva.Layer()
         this.carsSpawnLayer = new Konva.Layer()
-
 
         this.carsUILayer.hide()
 
@@ -127,7 +127,7 @@ export class AppUI {
             nodeCircle.on('click', () => {
                 // this.trafficLightsUILayer.setGreenLightDuration(48)
                 // this.trafficLightsUILayer.setRedLightDuration(52)
-                this.trafficLightsUILayer.show()
+                this.sublayers.trafficLightsUILayer.show()
                 // this.trafficLightsUILayer.drawLayer()
                 this.stage.draw()
             })
@@ -190,7 +190,9 @@ export class AppUI {
 
     setUpCarsUILayer() {
         let border = new Konva.Rect({
-            width: 300,
+            x: 5,
+            y: 280,
+            width: 400,
             height: 250,
             fill: 'gray',
             stroke: 'gray',
@@ -203,9 +205,9 @@ export class AppUI {
         })
 
         this.carsUILayer.add(border)
-        let spawner = this.sublayers.createButtons('Set as car spawner', 20, 20);
-        let despawner = this.sublayers.createButtons('Set as car despawner', 20, 70);
-        let exit = this.sublayers.createButtons('Exit', 20, 170);
+        let spawner = this.sublayers.createButtons('Set as car spawner', 20, 300);
+        let despawner = this.sublayers.createButtons('Set as car despawner', 20, 350);
+        let exit = this.sublayers.createButtons('Exit', 20, 450);
 
         this.carsUILayer.add(spawner, despawner, exit)
 

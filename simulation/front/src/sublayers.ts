@@ -33,6 +33,8 @@ export class SubLayers {
         // this.clearLayer();
 
         let border = new Konva.Rect({
+            x: 5,
+            y: 5,
             width: 400,
             height: 250,
             fill: 'gray',
