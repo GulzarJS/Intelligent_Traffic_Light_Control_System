@@ -34,12 +34,12 @@ export class SubLayers {
         this.greenLightDuration = 0;
         this.redLightDuration = 0;
 
-        this.setupLayer()
+        this.setupTrafficLightsUILayer()
         this.setUpCarsUILayer()
 
     }
 
-    setupLayer(){
+    setupTrafficLightsUILayer(){
 
         // this.clearLayer();
 
