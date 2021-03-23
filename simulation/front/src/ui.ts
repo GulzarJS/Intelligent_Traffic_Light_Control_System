@@ -17,6 +17,8 @@ export class AppUI {
     private bounds: WsBounds
     readonly mapContainerId = "map-container"
     private lastClickedWay: WsMessageWay
+    private lastClickedTrafficLightsGroup: WsTrafficLightsGroups
+    public lastClickedTrafficLight: WsTrafficLight
 
     constructor(wsCommander: WsCommander, app: App) {
         this.wsCommander = wsCommander
@@ -126,10 +128,15 @@ export class AppUI {
                 })
 
             nodeCircle.on('click', () => {
-                // this.trafficLightsUILayer.setGreenLightDuration(48)
-                // this.trafficLightsUILayer.setRedLightDuration(52)
+
+                // this.lastClickedTrafficLightsGroup = trafficLightsGroup
+                this.lastClickedTrafficLight = node
+                this.sublayers.setupTrafficLightsUILayer(node.GreenDurationSeconds, node.RedDurationSeconds)
+                console.log(node.GreenDurationSeconds)
+                console.log(node.RedDurationSeconds)
+
                 this.sublayers.trafficLightsUILayer.show()
-                // this.trafficLightsUILayer.drawLayer()
+
                 this.stage.draw()
             })
 
@@ -188,6 +195,7 @@ export class AppUI {
         l.batchDraw()
         setTimeout(() => this.toggleTrafficLightFill(circle, t, l), duration)
     }
+
     //
     // setUpCarsUILayer() {
     //     let border = new Konva.Rect({

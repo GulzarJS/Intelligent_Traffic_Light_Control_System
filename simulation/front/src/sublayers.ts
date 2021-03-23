@@ -34,12 +34,14 @@ export class SubLayers {
         this.greenLightDuration = 0;
         this.redLightDuration = 0;
 
-        this.setupTrafficLightsUILayer()
+        // this.setupTrafficLightsUILayer()
         this.setUpCarsUILayer()
 
     }
 
-    setupTrafficLightsUILayer(){
+
+
+    setupTrafficLightsUILayer(gld: number, rld: number){
 
         // this.clearLayer();
 
@@ -58,14 +60,17 @@ export class SubLayers {
             shadowOpacity: 0.5
         })
 
+        this.greenLightDuration = gld;
+        this.redLightDuration = rld;
+
         this.trafficLightsUILayer.add(border)
         let setGreenDur = this.createButtons('Green Light Duration', 20, 20);
         let setRedDur = this.createButtons('Red Light Duration', 20, 70);
         let entrustAI = this.createButtons('Entrust AI', 20, 120);
         let exit = this.createButtons('Exit', 20, 170);
         let submit = this.createButtons('Submit', 300, 170);
-        let gLDuration = this.createTextField(String(this.greenLightDuration), 260,30, this.greenLightDuration)
-        let rLDuration = this.createTextField(String(this.redLightDuration), 260,80, this.redLightDuration)
+        let gLDuration = this.createTextField(String(this.greenLightDuration), 260,30, this.ui.lastClickedTrafficLight.GreenDurationSeconds)
+        let rLDuration = this.createTextField(String(this.redLightDuration), 260,80,  this.ui.lastClickedTrafficLight.RedDurationSeconds)
 
 
         exit.on('click', () => {
@@ -92,6 +97,16 @@ export class SubLayers {
         this.trafficLightsUILayer.draw()
     }
 
+    // refreshTrafficLightsUILayer(gld: number, rld: number){
+    //
+    //     this.greenLightDuration = gld;
+    //     this.redLightDuration = rld;
+    //     let gLDuration = this.createTextField(String(this.greenLightDuration), 260,30, this.greenLightDuration)
+    //     let rLDuration = this.createTextField(String(this.redLightDuration), 260,80, this.redLightDuration)
+    //
+    //     this.trafficLightsUILayer.draw();
+    //
+    // }
 
     setUpCarsUILayer() {
         let border = new Konva.Rect({
