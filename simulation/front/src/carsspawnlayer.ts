@@ -28,9 +28,13 @@ export class CarsSpawnLayer {
             this.playBtn = img
             this.playBtn.hide()
             this.layer.add(img)
+
+            img.on('click', () => {
+                this.playBtn.hide()
+                this.drawLayer()
+                this.ui.playButtonClicked()
+            })
         })
-
-
 
         this.stage.add(this.layer)
         this.drawLayer()

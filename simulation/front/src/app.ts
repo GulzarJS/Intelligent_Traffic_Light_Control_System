@@ -67,10 +67,29 @@ export default class App {
     private gotTrafficLightsGroups(message: WsMessage<WsTrafficLightsGroups[]>) {
         this.trafficLightsGroupsListener.post(message.Body)
     }
+
+    spawnCars() {
+        let spawnPoints: bigint[] = []
+        for (const spawnPoint of this.spawnPoints) {
+            let node = spawnPoint.Node1
+            spawnPoints.push(node.ID)
+        }
+
+        let despawnPoints: bigint[] = []
+        for (const despawnPoint of this.deSpawnPoints) {
+            despawnPoints.push(despawnPoint.Node1.ID)
+        }
+
+
+        this.wsCommander.spawnCars(spawnPoints, despawnPoints)
+
+        this.spawnPoints = []
+        this.deSpawnPoints = []
+    }
 }
 
 export interface WsMessageNode {
-    Id: bigint
+    ID: bigint
     Lat: number
     Lon: number
 }

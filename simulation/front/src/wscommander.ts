@@ -26,4 +26,18 @@ export default class WsCommander {
     public setRedLightDuration() {
         this.ws.send("/setRedLightDuration")
     }
+
+    public spawnCars(spawnPoints: bigint[], despawnPoints: bigint[]) {
+        let spawnStr = String(spawnPoints[0])
+        for (let i = 1; i < spawnPoints.length; i++) {
+            spawnStr += "," +spawnPoints[i]
+        }
+
+        let despawnStr = String(despawnPoints[0])
+        for (let i = 1; i < despawnPoints.length; i++) {
+            despawnStr += ","+despawnPoints[i]
+        }
+
+        this.ws.send("/spawnCars/"+spawnStr+"/"+despawnStr)
+    }
 }

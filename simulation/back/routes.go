@@ -4,6 +4,8 @@ import (
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/commandrouter"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/wshelper"
+	"strconv"
+	"strings"
 )
 
 func (a *App) initializeRoutes() {
@@ -12,6 +14,7 @@ func (a *App) initializeRoutes() {
 	a.cRouter.Add("/getBoundRatio", a.getBoundRatio)
 	a.cRouter.Add("/getBounds", a.getBounds)
 	a.cRouter.Add("/getTrafficLightsGroups", a.getTrafficLightsGroups)
+	a.cRouter.Add(`/spawnCars/(?P<spawns>[\w|_|#|\-|\d]+)/(?P<despawns>[\w|_|#|\-|\d]+)`, a.spawnCars)
 }
 
 type WsMessage struct {
@@ -76,6 +79,29 @@ func (a *App) getTrafficLightsGroups(args commandrouter.RouteArgs) {
 	})
 
 	misc.LogError(err, false, "write error occurred")
+}
+
+func (a *App) spawnCars(args commandrouter.RouteArgs) {
+	spawnPointsStr := strings.Split(args.Params["spawns"], ",")
+	spawnPoints := []int{}
+	for _, s := range spawnPointsStr {
+		tmp, err := strconv.Atoi(s)
+		if misc.LogError(err, false, "cannot parse spawn point ID") {
+			return
+		}
+		spawnPoints = append(spawnPoints, tmp)
+	}
+
+	despawnPointsStr := strings.Split(args.Params["despawns"], ",")
+	despawnPoints := []int{}
+	for _, s := range despawnPointsStr {
+		tmp, err := strconv.Atoi(s)
+		if misc.LogError(err, false, "cannot parse spawn point ID") {
+			return
+		}
+		despawnPoints = append(despawnPoints, tmp)
+	}
+
 }
 
 func (a *App) getMap(conn *wshelper.WsConn) *Map {

@@ -276,6 +276,15 @@ export class AppUI {
         this.carsSpawnLayer.addWedge(wedge)
         this.carsSpawnLayer.drawLayer()
     }
+
+    playButtonClicked() {
+        this.app.spawnCars()
+        for (const wedgeWay of this.wedgeWayDict) {
+            wedgeWay.wedge.remove()
+        }
+
+        this.carsSpawnLayer.drawLayer()
+    }
 }
 
 
