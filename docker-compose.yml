@@ -24,4 +24,4 @@ services:
     build: ai
     volumes:
       - ./ai:/usr/src/app
-    command: python traffic_light_build.py --test
+    command: python traffic_light_build.py --train
