@@ -1,0 +1,27 @@
+version: '2'
+
+services:
+  front_builder:
+    build: simulation/front
+    restart: "no"
+    volumes:
+      - ./simulation/front:/app
+    command: npm run build
+  back:
+    build: simulation/back
+    command: go run -race .
+    volumes:
+      - ./simulation/back:/go/src/app
+  nginx:
+    image: nginx
+    volumes:
+      - ./simulation/front/src:/usr/share/nginx/html
+      - ./simulation/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 8080:80
+      - 9090:90
+  ai:
+    build: ai
+    volumes:
+      - ./ai:/usr/src/app
+    command: python traffic_light_build.py --test
