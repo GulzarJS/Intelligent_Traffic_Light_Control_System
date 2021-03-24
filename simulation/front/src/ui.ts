@@ -18,7 +18,7 @@ export class AppUI {
 
     private wsCommander: WsCommander
     private bounds: WsBounds
-    readonly mapContainerId = "map-container"
+    public readonly mapContainerId = "map-container"
     private lastClickedWay: WsMessageWay
     private app: App
     private wedgeWayDict: IWedgeWay[]
@@ -38,9 +38,11 @@ export class AppUI {
         this.carsUILayer = new CarsUILayer(this)
         this.carsSpawnLayer = new CarsSpawnLayer(this)
 
+        this.wedgeWayDict = []
 
         this.stage.add(this.mapLayer)
 
+        this.app = app
 
         app.boundsListener.attach((bounds: WsBounds) => {
             this.bounds = bounds
@@ -203,6 +205,11 @@ export class AppUI {
                 if (wedgeWay.wedge == wedge) {
                     removeItemOnce(this.wedgeWayDict, wedgeWay)
                     removeItemOnce(this.app.spawnPoints, wedgeWay.way)
+
+                    if (!(this.app.spawnPoints.length > 0 && this.app.deSpawnPoints.length > 0)) {
+                        this.carsSpawnLayer.hidePlayButton()
+                    }
+
                     break
                 }
             }
@@ -214,9 +221,16 @@ export class AppUI {
         // TODO: Add a play button or smth when there is at least one spawner AND one despawner
         // TODO: Don't let two (de)spawners overlap each other
 
+        console.log(this.app)
+
         this.wedgeWayDict.push({wedge: wedge, way: this.lastClickedWay})
         this.app.spawnPoints.push(this.lastClickedWay)
-        this.carsSpawnLayer.getlayer().add(wedge)
+
+        if (this.app.spawnPoints.length > 0 && this.app.deSpawnPoints.length > 0) {
+            this.carsSpawnLayer.showPlayButton()
+        }
+
+        this.carsSpawnLayer.addWedge(wedge)
         this.carsSpawnLayer.drawLayer()
     }
 
@@ -236,6 +250,11 @@ export class AppUI {
                 if (wedgeWay.wedge == wedge) {
                     removeItemOnce(this.app.deSpawnPoints, wedgeWay.way)
                     removeItemOnce(this.wedgeWayDict, wedgeWay)
+
+                    if (!(this.app.spawnPoints.length > 0 && this.app.deSpawnPoints.length > 0)) {
+                        this.carsSpawnLayer.hidePlayButton()
+                    }
+
                     break
                 }
             }
@@ -249,7 +268,12 @@ export class AppUI {
 
         this.wedgeWayDict.push({wedge: wedge, way: this.lastClickedWay})
         this.app.deSpawnPoints.push(this.lastClickedWay)
-        this.carsSpawnLayer.getlayer().add(wedge)
+
+        if (this.app.spawnPoints.length > 0 && this.app.deSpawnPoints.length > 0) {
+            this.carsSpawnLayer.showPlayButton()
+        }
+
+        this.carsSpawnLayer.addWedge(wedge)
         this.carsSpawnLayer.drawLayer()
     }
 }

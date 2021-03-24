@@ -9,6 +9,7 @@ export class CarsSpawnLayer {
     private ui: AppUI
     private stage: Stage.Stage
     private layer: Stage.Layer
+    private playBtn: Konva.Image
 
 
     constructor(ui: AppUI) {
@@ -18,10 +19,21 @@ export class CarsSpawnLayer {
 
         this.layer = new Konva.Layer()
 
+        Konva.Image.fromURL('play-button.png', (img: Konva.Image) => {
+            img.setAttrs({
+                x: document.getElementById(this.ui.mapContainerId).scrollWidth/2 - 64,
+                y: 20,
+            })
+
+            this.playBtn = img
+            this.playBtn.hide()
+            this.layer.add(img)
+        })
+
+
+
         this.stage.add(this.layer)
-
-        this.layer.hide()
-
+        this.drawLayer()
     }
 
     showLayer(){
@@ -38,5 +50,17 @@ export class CarsSpawnLayer {
 
     getlayer(): Konva.Layer {
         return this.layer;
+    }
+
+    showPlayButton() {
+        this.playBtn.show()
+    }
+
+    hidePlayButton() {
+        this.playBtn.hide()
+    }
+
+    addWedge(wedge: Konva.Wedge) {
+        this.layer.add(wedge)
     }
 }

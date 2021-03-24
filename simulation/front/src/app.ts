@@ -16,6 +16,8 @@ export default class App {
         this.ws = ws
         this.cRouter = new CommandRouter(ws)
         this.wsCommander = wsCommander
+        this.spawnPoints = []
+        this.deSpawnPoints = []
 
         this.initializeListeners()
         this.initializeRoutes()
