@@ -194,7 +194,7 @@ class DQN:
         plt.savefig( 'cost.png' )
         plt.show()
         
-    tf.reset_default_graph()
+    #tf.reset_default_graph()
 
     def store( self ):
         saver=tf.train.Saver() 
