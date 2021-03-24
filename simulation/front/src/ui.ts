@@ -99,6 +99,11 @@ export class AppUI {
 
             nodeCircle.draw()
 
+            nodeCircle.on('click', () => {
+
+                this.trafficLightUILayer.showLayer(trafficLightsGroup.TrafficLights[0])
+            })
+
 
             for (const node of trafficLightsGroup.TrafficLights) {
                 let coords = this.pointTransformer(node.Node)
@@ -123,13 +128,6 @@ export class AppUI {
                     y: coords.Lat,
                     radius: 6,
                     fill: fill
-                })
-
-                nodeCircle.on('click', () => {
-
-                    this.trafficLightUILayer.showLayer()
-
-                    this.stage.draw()
                 })
 
                 setTimeout(() => {
@@ -203,6 +201,7 @@ export class AppUI {
         wedge.addEventListener('click', (e) => {
             for (const wedgeWay of this.wedgeWayDict) {
                 if (wedgeWay.wedge == wedge) {
+                    removeItemOnce(this.wedgeWayDict, wedgeWay)
                     removeItemOnce(this.app.spawnPoints, wedgeWay.way)
                     break
                 }
@@ -233,6 +232,13 @@ export class AppUI {
         })
 
         wedge.addEventListener('click', (e) => {
+            for (const wedgeWay of this.wedgeWayDict) {
+                if (wedgeWay.wedge == wedge) {
+                    removeItemOnce(this.app.deSpawnPoints, wedgeWay.way)
+                    removeItemOnce(this.wedgeWayDict, wedgeWay)
+                    break
+                }
+            }
             wedge.remove()
             this.carsSpawnLayer.drawLayer()
         })
@@ -241,6 +247,8 @@ export class AppUI {
         // TODO: Add a play button or smth when there is at least one spawner AND one despawner
         // TODO: Don't let two (de)spawners overlap each other
 
+        this.wedgeWayDict.push({wedge: wedge, way: this.lastClickedWay})
+        this.app.deSpawnPoints.push(this.lastClickedWay)
         this.carsSpawnLayer.getlayer().add(wedge)
         this.carsSpawnLayer.drawLayer()
     }

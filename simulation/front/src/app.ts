@@ -10,6 +10,7 @@ export default class App {
     public waysListener: AsyncEvent<WsMessageWay[]>
     public trafficLightsGroupsListener: AsyncEvent<WsTrafficLightsGroups[]>
     public spawnPoints: WsMessageWay[]
+    public deSpawnPoints: WsMessageWay[]
 
     constructor(ws: WebSocket, wsCommander: WsCommander) {
         this.ws = ws

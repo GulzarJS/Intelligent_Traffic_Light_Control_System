@@ -3,7 +3,8 @@ import Stage from 'konva'
 
 import {AppUI} from "./ui";
 import {Buttons} from "./buttons";
-import {TextFields} from "./textfields";
+import {TextField} from "./textField";
+import { WsTrafficLight } from './app';
 
 
 export class TrafficLightUILayer {
@@ -12,8 +13,9 @@ export class TrafficLightUILayer {
     private stage: Stage.Stage
     private layer: Stage.Layer
 
-    public greenLightDuration: number
-    public redLightDuration: number
+    private activeTrafficLightCircle: Konva.Circle
+    private greenDurTxtField: TextField
+    private redDurTxtField: TextField
 
     constructor(ui: AppUI) {
 
@@ -25,9 +27,6 @@ export class TrafficLightUILayer {
         this.stage.add(this.layer)
 
         this.layer.hide()
-
-        this.greenLightDuration = 0;
-        this.redLightDuration = 0;
 
         this.setupLayer()
 
@@ -57,12 +56,14 @@ export class TrafficLightUILayer {
         let exit = new Buttons(this.layer, 'Exit', 20, 170);
         let submit = new Buttons(this.layer, 'Submit', 300, 170);
 
-        let gLDuration = new TextFields(this.stage, this.layer, String(this.greenLightDuration), 260, 30)
-        let rLDuration = new TextFields(this.stage, this.layer, String(this.redLightDuration), 260, 80)
+        let gLDuration = new TextField(this.stage, this.layer, String(0), 260, 30)
+        let rLDuration = new TextField(this.stage, this.layer, String(0), 260, 80)
 
+        this.greenDurTxtField = gLDuration
+        this.redDurTxtField = rLDuration
 
         exit.getButton.on('click', () => {
-            this.layer.hide()
+            this.hideLayer()
         })
 
         setGreenDur.getButton.on('click', () => {
@@ -80,21 +81,34 @@ export class TrafficLightUILayer {
         submit.getButton.on('click', () => {
             alert('clicked on Submit button');
         })
-
-
     }
 
-    showLayer(){
+    showLayer(trafficLight: WsTrafficLight){
+        let circleCoords = this.ui.pointTransformer(trafficLight.Node)
+        let activeTrafficLightCircle = new Konva.Circle({
+            x: circleCoords.Lon,
+            y: circleCoords.Lat,
+            radius: 15,
+            stroke: 'gray',
+            strokeWidth: 2,
+        })
+
+        this.layer.add(activeTrafficLightCircle)
+        this.activeTrafficLightCircle = activeTrafficLightCircle
+
+        this.redDurTxtField.setText(String(trafficLight.RedDurationSeconds))
+        this.greenDurTxtField.setText(String(trafficLight.GreenDurationSeconds))
+
         this.layer.show()
+        this.layer.draw()
     }
 
     hideLayer(){
+        this.activeTrafficLightCircle.remove()
         this.layer.hide()
     }
 
     drawLayer(){
         this.layer.draw()
     }
-
-
 }

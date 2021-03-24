@@ -3,7 +3,7 @@ import Stage from 'konva'
 
 import {AppUI} from "./ui";
 import {Buttons} from "./buttons";
-import {TextFields} from "./textfields";
+import {TextField} from "./textField";
 
 
 export class CarsUILayer {
@@ -69,6 +69,7 @@ export class CarsUILayer {
 
     showLayer(){
         this.layer.show()
+        this.layer.draw()
     }
 
     hideLayer(){

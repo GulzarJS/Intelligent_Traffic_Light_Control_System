@@ -36,7 +36,6 @@ export class CarsSpawnLayer {
         this.layer.draw()
     }
 
-
     getlayer(): Konva.Layer {
         return this.layer;
     }

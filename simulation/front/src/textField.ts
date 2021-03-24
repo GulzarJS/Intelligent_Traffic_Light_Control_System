@@ -1,6 +1,6 @@
 import Konva from 'konva'
 
-export class TextFields {
+export class TextField {
 
     private stage: Konva.Stage
     private layer: Konva.Layer
@@ -71,6 +71,6 @@ export class TextFields {
     }
 
     setText(text: string) {
-        this.setText(text);
+        this.textNode.setText(text);
     }
 }
