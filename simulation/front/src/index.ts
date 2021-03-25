@@ -10,5 +10,3 @@ const wsCommander = new WsCommander(socket)
 const app = new App(socket, wsCommander)
 
 const ui = new AppUI(wsCommander, app)
-
-

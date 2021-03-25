@@ -9,6 +9,7 @@ export default class App {
     public boundsListener: AsyncEvent<WsBounds>
     public waysListener: AsyncEvent<WsMessageWay[]>
     public trafficLightsGroupsListener: AsyncEvent<WsTrafficLightsGroups[]>
+    public carsListener: AsyncEvent<WsCar[]>
     public spawnPoints: WsMessageWay[]
     public deSpawnPoints: WsMessageWay[]
 
@@ -29,6 +30,7 @@ export default class App {
         this.cRouter.add("ways", (this.gotWays).bind(this))
         this.cRouter.add("bounds", (this.gotBounds).bind(this))
         this.cRouter.add("traffic_lights_groups", (this.gotTrafficLightsGroups).bind(this))
+        this.cRouter.add("cars", (this.gotCars).bind(this))
     }
 
     private initializeWs(){
@@ -50,6 +52,7 @@ export default class App {
         this.waysListener = new AsyncEvent<WsMessageWay[]>()
         this.boundsListener = new AsyncEvent<WsBounds>()
         this.trafficLightsGroupsListener = new AsyncEvent<WsTrafficLightsGroups[]>()
+        this.carsListener = new AsyncEvent<WsCar[]>()
     }
 
     private init(message: WsMessage<string>){
@@ -66,6 +69,10 @@ export default class App {
 
     private gotTrafficLightsGroups(message: WsMessage<WsTrafficLightsGroups[]>) {
         this.trafficLightsGroupsListener.post(message.Body)
+    }
+
+    private gotCars(message: WsMessage<WsCar[]>) {
+        this.carsListener.post(message.Body)
     }
 
     spawnCars() {
@@ -119,4 +126,10 @@ export interface WsTrafficLight {
     RedDurationSeconds: number
     OnWay: WsMessageWay
     CenterNode: WsMessageNode
+}
+
+export interface WsCar {
+    ID: number
+    Lat: number
+    Lon: number
 }

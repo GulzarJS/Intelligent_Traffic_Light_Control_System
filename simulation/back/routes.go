@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/commandrouter"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/misc"
+	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/osmhelper"
 	"github.com/GulzarJS/Intelligent_Traffic_Light_Control_System/simulation/wshelper"
 	"strconv"
 	"strings"
@@ -20,6 +21,12 @@ func (a *App) initializeRoutes() {
 type WsMessage struct {
 	Type string
 	Body interface{}
+}
+
+type WsCar struct {
+	ID  int
+	Lon float64
+	Lat float64
 }
 
 func (a *App) init(args commandrouter.RouteArgs) {
@@ -82,26 +89,62 @@ func (a *App) getTrafficLightsGroups(args commandrouter.RouteArgs) {
 }
 
 func (a *App) spawnCars(args commandrouter.RouteArgs) {
+
 	spawnPointsStr := strings.Split(args.Params["spawns"], ",")
-	spawnPoints := []int{}
+	spawnPointIDs := misc.IntArray{}
 	for _, s := range spawnPointsStr {
 		tmp, err := strconv.Atoi(s)
 		if misc.LogError(err, false, "cannot parse spawn point ID") {
 			return
 		}
-		spawnPoints = append(spawnPoints, tmp)
+		spawnPointIDs = append(spawnPointIDs, int64(tmp))
 	}
 
 	despawnPointsStr := strings.Split(args.Params["despawns"], ",")
-	despawnPoints := []int{}
+	despawnPointIDs := misc.IntArray{}
 	for _, s := range despawnPointsStr {
 		tmp, err := strconv.Atoi(s)
 		if misc.LogError(err, false, "cannot parse spawn point ID") {
 			return
 		}
-		despawnPoints = append(despawnPoints, tmp)
+		despawnPointIDs = append(despawnPointIDs, int64(tmp))
 	}
 
+	spawnPoints := make([]osmhelper.WsNode, len(spawnPointIDs))
+	despawnPoints := make([]osmhelper.WsNode, len(despawnPointIDs))
+
+	var spawnPointI int
+	var despawnPointI int
+	for _, node := range a.osmHelper.Nodes {
+		if ok, _ := spawnPointIDs.Contains(int64(node.ID)); ok {
+			spawnPoints[spawnPointI] = osmhelper.WsNode{
+				ID:  int64(node.ID),
+				Lat: node.Lat,
+				Lon: node.Lon,
+			}
+			spawnPointI++
+			continue
+		}
+
+		if ok, _ := despawnPointIDs.Contains(int64(node.ID)); ok {
+			despawnPoints[despawnPointI] = osmhelper.WsNode{
+				ID:  int64(node.ID),
+				Lat: node.Lat,
+				Lon: node.Lon,
+			}
+			despawnPointI++
+		}
+	}
+
+	m := a.getMap(args.Ws)
+
+	err := m.InitializeCars(spawnPoints, despawnPoints)
+
+	if misc.LogError(err, false, "") {
+		return
+	}
+
+	go a.sendCarsLocation(m, args.Ws)
 }
 
 func (a *App) getMap(conn *wshelper.WsConn) *Map {
