@@ -84,7 +84,7 @@ if args.train:
     
     plt.plot( step_set, reward_set )
     plt.savefig( 'training.png' )
-    #ReinforceLearn.store()
+    ReinforceLearn.store()
     plt.show()
     ReinforceLearn.cost_plotting()
 
@@ -97,7 +97,7 @@ if args.test:
     step_set = []
     reward_set = []
     num_cars_road1, num_cars_road2, state = environment_initialization()
-    #ReinforceLearn.restore()
+    ReinforceLearn.restore()
 
     for steps in range( 1000 ):
         if num_cars_road1 > 10 or num_cars_road2 > 10:
