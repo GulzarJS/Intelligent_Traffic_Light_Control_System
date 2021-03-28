@@ -101,3 +101,28 @@ func (a *App) readMessages(ws *wshelper.WsConn) {
 		}
 	}
 }
+
+func (a *App) sendCarsLocation(m *Map, ws *wshelper.WsConn) {
+	ticker := time.NewTicker(125 * time.Millisecond)
+
+	for _ = range ticker.C {
+		m.CalculateCars()
+		cars := []WsCar{}
+
+		for _, car := range m.Cars {
+
+			lon, lat := car.getCoords()
+
+			cars = append(cars, WsCar{
+				ID:  car.ID,
+				Lon: lon,
+				Lat: lat,
+			})
+		}
+
+		ws.WriteJSON(WsMessage{
+			Type: "cars",
+			Body: cars,
+		})
+	}
+}

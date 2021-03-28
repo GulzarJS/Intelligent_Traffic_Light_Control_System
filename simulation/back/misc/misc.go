@@ -45,3 +45,14 @@ func LogInfo(format string, args ...interface{}) {
 		log.Println("[INFO] " + format)
 	}
 }
+
+type IntArray []int64
+
+func (arr IntArray) Contains(i int64) (bool, int) {
+	for j, v := range arr {
+		if i == v {
+			return true, j
+		}
+	}
+	return false, -1
+}

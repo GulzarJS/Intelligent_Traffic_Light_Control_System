@@ -25,6 +25,7 @@ type OsmHelper struct {
 	OsmWays       map[int64]*osm.Way
 	TrafficLights osm.Nodes
 	Bounds        *osm.Bounds
+	WaysGraph     map[int64][]int64
 }
 
 type WsWay struct {
@@ -61,6 +62,7 @@ func NewOsmHelper(file string) (*OsmHelper, error) {
 	ways := make([]Way, 0)
 	osmWays := make(map[int64]*osm.Way)
 	trafficLights := make(osm.Nodes, 0)
+	waysGraph := make(map[int64][]int64, 0)
 	var bounds *osm.Bounds
 
 	for _, obj := range objs {
@@ -95,6 +97,18 @@ func NewOsmHelper(file string) (*OsmHelper, error) {
 							Tags:     way.Tags,
 						})
 
+						if _, exists := waysGraph[int64(firstNode.ID)]; exists {
+							waysGraph[int64(firstNode.ID)] = append(waysGraph[int64(firstNode.ID)], int64(nodes[int64(nodeID)].ID))
+						} else {
+							waysGraph[int64(firstNode.ID)] = []int64{int64(nodes[int64(nodeID)].ID)}
+						}
+
+						if _, exists := waysGraph[int64(nodes[int64(nodeID)].ID)]; exists {
+							waysGraph[int64(nodes[int64(nodeID)].ID)] = append(waysGraph[int64(nodes[int64(nodeID)].ID)], int64(firstNode.ID))
+						} else {
+							waysGraph[int64(nodes[int64(nodeID)].ID)] = []int64{int64(nodes[int64(nodeID)].ID)}
+						}
+
 						firstNode = nodes[int64(nodeID)]
 
 					}
@@ -117,6 +131,7 @@ func NewOsmHelper(file string) (*OsmHelper, error) {
 		OsmWays:       osmWays,
 		TrafficLights: trafficLights,
 		Bounds:        bounds,
+		WaysGraph:     waysGraph,
 	}, nil
 }
 

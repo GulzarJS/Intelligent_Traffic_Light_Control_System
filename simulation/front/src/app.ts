@@ -9,11 +9,16 @@ export default class App {
     public boundsListener: AsyncEvent<WsBounds>
     public waysListener: AsyncEvent<WsMessageWay[]>
     public trafficLightsGroupsListener: AsyncEvent<WsTrafficLightsGroups[]>
+    public carsListener: AsyncEvent<WsCar[]>
+    public spawnPoints: WsMessageWay[]
+    public deSpawnPoints: WsMessageWay[]
 
     constructor(ws: WebSocket, wsCommander: WsCommander) {
         this.ws = ws
         this.cRouter = new CommandRouter(ws)
         this.wsCommander = wsCommander
+        this.spawnPoints = []
+        this.deSpawnPoints = []
 
         this.initializeListeners()
         this.initializeRoutes()
@@ -25,6 +30,7 @@ export default class App {
         this.cRouter.add("ways", (this.gotWays).bind(this))
         this.cRouter.add("bounds", (this.gotBounds).bind(this))
         this.cRouter.add("traffic_lights_groups", (this.gotTrafficLightsGroups).bind(this))
+        this.cRouter.add("cars", (this.gotCars).bind(this))
     }
 
     private initializeWs(){
@@ -46,6 +52,7 @@ export default class App {
         this.waysListener = new AsyncEvent<WsMessageWay[]>()
         this.boundsListener = new AsyncEvent<WsBounds>()
         this.trafficLightsGroupsListener = new AsyncEvent<WsTrafficLightsGroups[]>()
+        this.carsListener = new AsyncEvent<WsCar[]>()
     }
 
     private init(message: WsMessage<string>){
@@ -63,10 +70,33 @@ export default class App {
     private gotTrafficLightsGroups(message: WsMessage<WsTrafficLightsGroups[]>) {
         this.trafficLightsGroupsListener.post(message.Body)
     }
+
+    private gotCars(message: WsMessage<WsCar[]>) {
+        this.carsListener.post(message.Body)
+    }
+
+    spawnCars() {
+        let spawnPoints: bigint[] = []
+        for (const spawnPoint of this.spawnPoints) {
+            let node = spawnPoint.Node1
+            spawnPoints.push(node.ID)
+        }
+
+        let despawnPoints: bigint[] = []
+        for (const despawnPoint of this.deSpawnPoints) {
+            despawnPoints.push(despawnPoint.Node1.ID)
+        }
+
+
+        this.wsCommander.spawnCars(spawnPoints, despawnPoints)
+
+        this.spawnPoints = []
+        this.deSpawnPoints = []
+    }
 }
 
 export interface WsMessageNode {
-    Id: bigint
+    ID: bigint
     Lat: number
     Lon: number
 }
@@ -96,4 +126,10 @@ export interface WsTrafficLight {
     RedDurationSeconds: number
     OnWay: WsMessageWay
     CenterNode: WsMessageNode
+}
+
+export interface WsCar {
+    ID: number
+    Lat: number
+    Lon: number
 }
